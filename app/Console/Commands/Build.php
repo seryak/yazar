@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Yazar\Page;
-use App\Service\MarkdownParser;
 use Illuminate\Console\Command;
 use Storage;
+use Symfony\Component\Console\Command\Command as CommandAlias;
 use Webmozart\Assert\Assert;
 
 class Build extends Command
@@ -14,16 +14,16 @@ class Build extends Command
     protected $description = 'Generate static build';
 
 
-    public function handle()
+    public function handle(): int
     {
-        $contentCollections = config('content');
+        $contentCollections = config('content')['collections'];
         foreach ($contentCollections as $nameCollection => $collection) {
             $this->validate($collection, $nameCollection);
             $this->buildHtmlPages($collection);
         }
 
         $this->info('generating html pages is finish');
-        return Command::SUCCESS;
+        return CommandAlias::SUCCESS;
     }
 
     protected function validate(array $collection, string $nameCollection): void
@@ -40,10 +40,17 @@ class Build extends Command
         }
     }
 
-    protected function buildHtmlPages(array $collection) {
+    protected function buildHtmlPages(array $collection): void
+    {
         foreach ($collection['items'] as $filepath) {
             $page = new Page($filepath);
-            Storage::disk('public')->put(env('OUTPUT_DIRECTORY').'/'.$page->fileName.'.html', $page->fileHtml);
+            Storage::disk('public')->put($this->getOutputPath($page), $page->fileHtml);
         }
+    }
+
+    protected function getOutputPath(Page $page): string
+    {
+        $filenamePath = config('content.use_html_suffix') ? $page->fileName. '.html' : $page->fileName.'/index.html';
+        return config('content.output_directory').'/'. $filenamePath;
     }
 }
