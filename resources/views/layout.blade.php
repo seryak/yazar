@@ -17,7 +17,6 @@
     <link rel="home" href="https://one-problem-a-day.netlify.app">
     <link rel="icon" href="/assets/images/favicon.ico">
 
-    <link href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,300i,400,400i,600,700,700i,800,800i" rel="stylesheet">
     @vite('resources/js/app.js')
 {{--    <link rel="stylesheet" href="/build/assets/main.css?id=86ddee774e0bcf5a1bf6b25f7c738cbb">--}}
@@ -96,7 +95,7 @@
 
 <main role="main" class="flex-auto w-full container max-w-4xl mx-auto py-16 px-6">
 
-    <h1 class="leading-none mb-2">{{$page->title}}</h1>
+    <h1 class="leading-none mb-2">{{$page->title}} </h1>
 
     <p class="text-gray-700 text-xl md:mt-0">January 10, 2023</p>
 
@@ -132,8 +131,6 @@
         </li>
     </ul>
 </footer>
-
-<script src="/assets/build/js/main.js?id=3b506477033681cb672a1ac0fd3e8260"></script>
 
 <script>
     const navMenu = {
