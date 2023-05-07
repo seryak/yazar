@@ -19,7 +19,8 @@
 
     <link href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,300i,400,400i,600,700,700i,800,800i" rel="stylesheet">
-    <link rel="stylesheet" href="/main.css?id=86ddee774e0bcf5a1bf6b25f7c738cbb">
+    @vite('resources/js/app.js')
+{{--    <link rel="stylesheet" href="/build/assets/main.css?id=86ddee774e0bcf5a1bf6b25f7c738cbb">--}}
 </head>
 
 <body class="flex flex-col justify-between min-h-screen bg-gray-100 text-gray-800 leading-normal font-sans">
