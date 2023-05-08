@@ -16,6 +16,9 @@ class Page
     public array $meta;
     public string $htmlContent;
 
+    /**
+     * @test {@see Tests\Unit\App\Models\Page\Constructor)}
+     */
     public function __construct(string $path)
     {
         $parser = new MarkdownParser;
