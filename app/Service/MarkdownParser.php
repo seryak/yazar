@@ -14,6 +14,10 @@ class MarkdownParser
     public string $content;
     public array $options;
 
+
+    /**
+     * @test {@see \Tests\Unit\App\Service\MarkdownParser\BaseTest::testConstructor()}
+     */
     public function __construct()
     {
         $config = [];
@@ -25,6 +29,7 @@ class MarkdownParser
     }
 
     /**
+     * @test {@see \Tests\Unit\App\Service\MarkdownParser\BaseTest::testParse()}
      * @throws CommonMarkException
      */
     public function parse(string $string): void
