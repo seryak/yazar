@@ -3,6 +3,7 @@
 namespace App\Models\Yazar;
 
 use App\Service\MarkdownParser;
+use Carbon\Carbon;
 
 class Page
 {
@@ -12,6 +13,7 @@ class Page
     public string $fileHtml;
 
     public string $title;
+    public Carbon $createdAt;
 
     public array $meta;
     public string $htmlContent;
@@ -29,8 +31,9 @@ class Page
 
         $this->view = $parser->options['view::extends'];
         $this->title = $parser->options['title'];
+        $this->createdAt = Carbon::parse($parser->options['created_at']);
         $this->htmlContent = $parser->content;
-        $this->fileHtml = view($this->view, ['page' => $this])->render();
         $this->fileName = explode('.', basename($path))[0];
+        $this->fileHtml = view($this->view, ['page' => $this])->render();
     }
 }
