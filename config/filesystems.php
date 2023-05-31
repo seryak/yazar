@@ -36,6 +36,18 @@ return [
             'throw' => false,
         ],
 
+        'categories' => [
+            'driver' => 'local',
+            'root' => base_path('_content/categories'),
+            'throw' => false,
+        ],
+
+        'pages' => [
+            'driver' => 'local',
+            'root' => base_path('_content/pages'),
+            'throw' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => public_path(),

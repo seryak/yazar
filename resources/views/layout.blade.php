@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,13 +12,10 @@
     <meta property="og:description" content="Solve one problem per day" />
 
     <title>Shuffle the array | One problem a day</title>
-
-    <link rel="home" href="https://one-problem-a-day.netlify.app">
     <link rel="icon" href="/assets/images/favicon.ico">
 
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,300i,400,400i,600,700,700i,800,800i" rel="stylesheet">
     @vite('resources/js/app.js')
-{{--    <link rel="stylesheet" href="/build/assets/main.css?id=86ddee774e0bcf5a1bf6b25f7c738cbb">--}}
 </head>
 
 <body class="flex flex-col justify-between min-h-screen bg-gray-100 text-gray-800 leading-normal font-sans">
@@ -27,9 +23,7 @@
     <div class="container flex items-center max-w-8xl mx-auto px-4 lg:px-8">
         <div class="flex items-center">
             <a href="/" title="One problem a day home" class="inline-flex items-center">
-                <img class="h-8 md:h-10 mr-3" src="/assets/images/logo.svg" alt="One problem a day logo" />
-
-                <h1 class="text-lg md:text-2xl text-indigo-500 font-semibold hover:text-indigo-700 my-0">One problem a day</h1>
+                <h1 class="text-lg md:text-2xl text-indigo-500 font-semibold hover:text-indigo-700 my-0">Yazar</h1>
             </a>
         </div>
 
@@ -93,36 +87,7 @@
     </ul>
 </nav>
 
-<main role="main" class="flex-auto w-full container max-w-4xl mx-auto py-16 px-6">
-
-    <h1 class="leading-none mb-2">{{$page->title}} </h1>
-
-    <p class="text-gray-700 text-xl md:mt-0">January 10, 2023</p>
-
-    <a
-        href="/categories/array-and-hashmap"
-        title="View posts in array-and-hashmap"
-        class="inline-block bg-gray-300 hover:bg-indigo-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 px-3 pt-px"
-    >array-and-hashmap</a>
-
-    <div class="border-b border-indigo-200 mb-10 pb-4" v-pre>
-        {!! $page->htmlContent !!}
-    </div>
-
-    <nav class="flex justify-between text-sm md:text-base">
-        <div>
-            <a href="https://one-problem-a-day.netlify.app/problems/find-good-days-to-rob-the-bank" title="Older Post: Find good days to rob the bank">
-                &LeftArrow; Find good days to rob the bank
-            </a>
-        </div>
-
-        <div>
-            <a href="https://one-problem-a-day.netlify.app/problems/maximum-binary-string-after-change" title="Newer Post: Maximum binary string after change">
-                Maximum binary string after change &RightArrow;
-            </a>
-        </div>
-    </nav>
-</main>
+@yield('main')
 
 <footer class="bg-white text-center text-sm mt-12 py-4" role="contentinfo">
     <ul class="flex flex-col md:flex-row justify-center list-none">
