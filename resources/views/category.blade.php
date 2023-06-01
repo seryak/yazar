@@ -3,7 +3,7 @@
 
 @section('main')
 <main role="main" class="flex-auto w-full container max-w-4xl mx-auto py-16 px-6">
-    <h1 class="text-4xl">{{$category->title}}</h1>
+    <h1 class="text-5xl font-extrabold">{{$category->title}}</h1>
 
     <div class="text-2xl border-b border-indigo-200 mb-6 pb-6">
         <p>{{$category->description}}</p>
