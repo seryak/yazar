@@ -6,7 +6,7 @@ return [
     'collections' => [
         'pages' => [
             'sorting' => false,
-            'path' => '{fileName}',
+            'path' => '/{fileName}',
             'items' => [
                 content_path('pages/hello.md'),
                 content_path('pages/test.md'),
@@ -14,7 +14,7 @@ return [
         ],
         'jetbrains-posts' => [
             'sorting' => false,
-            'path' => 'blog/jetbrains/{fileName}',
+            'path' => '/blog/jetbrains/{fileName}',
             'items' => [
                 content_path('pages/hello.md'),
                 content_path('pages/test.md'),

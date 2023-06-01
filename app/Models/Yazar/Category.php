@@ -15,6 +15,7 @@ class Category extends Collection
     public string $fileHtml;
 
     public string $title;
+    public string $description;
     public Carbon $createdAt;
 
     public array $meta;
@@ -38,6 +39,7 @@ class Category extends Collection
         $this->createdAt = Carbon::parse($parser->options['created_at']);
         $this->htmlContent = $parser->content;
         $this->slug = $parser->options['slug'];
+        $this->description = $parser->options['description'];
         $this->fileName = $path;
         $this->fileHtml = view($this->view, ['category' => $this])->render();
     }

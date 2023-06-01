@@ -46,8 +46,7 @@ class Page
 
     public function getOutputPath(): string
     {
-        $filenamePath = config('content.use_html_suffix') ? $this->slug. '.html' : $this->slug.'/index.html';
-        return config('content.output_directory').'/'. $filenamePath;
+        return config('content.output_directory').'/'. $this->slug;
     }
 
     /**
@@ -62,6 +61,7 @@ class Page
         foreach ($variables as $var) {
             $str = Str::of($str)->replace('{'.$var.'}', $this->$var);
         }
-        $this->slug = $str;
+
+        $this->slug = config('content.use_html_suffix') ? $str. '.html' : $str.'/index.html';
     }
 }
