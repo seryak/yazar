@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\FileCollections\Collection;
 use App\Models\Yazar\Category;
 use App\Models\Yazar\Page;
+use App\Service\CategoryBuilder;
 use Illuminate\Console\Command;
 use Storage;
 use Symfony\Component\Console\Command\Command as CommandAlias;
@@ -53,7 +54,7 @@ class Build extends Command
     {
         /** @var Category[] $categories */
         $categories = Category::all();
-        $collection->setItems($collection->getItems()->chunk(1));
+        $collection->setItems($collection->getItems()->chunk($collection->itemsPerPage));
 
         foreach ($collection->getItems() as $subCollection) {
             foreach ($subCollection as $filePath) {
@@ -67,7 +68,8 @@ class Build extends Command
         }
 
         foreach ($categories as $category) {
-            Storage::disk('public')->put($category->getOutputPath(), $category->fileHtml);
+            $builder = new CategoryBuilder($category);
+            $builder->buildFiles();
         }
     }
 }

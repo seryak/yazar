@@ -23,6 +23,8 @@ class Category extends Collection
 
     public string $slug;
 
+    public Paginator $paginator;
+
     /**
      * @test {@see Tests\Unit\App\Models\Page\Constructor)}
      */
