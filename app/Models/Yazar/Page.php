@@ -4,6 +4,7 @@ namespace App\Models\Yazar;
 
 use App\Service\MarkdownParser;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Page
@@ -20,6 +21,9 @@ class Page
     public array $meta;
     public string $htmlContent;
     public ?Category $category;
+
+    public ?Page $nextPage = null;
+    public ?Page $previousPage = null;
 
     /**
      * @test {@see Tests\Unit\App\Models\Page\Constructor)}
@@ -40,8 +44,6 @@ class Page
         if (isset($parser->options['category'])) {
             $this->category = new Category($parser->options['category'].'.md');
         }
-
-        $this->fileHtml = view($this->view, ['page' => $this])->render();
     }
 
     public function getOutputPath(): string
@@ -63,5 +65,11 @@ class Page
         }
 
         $this->slug = config('content.use_html_suffix') ? $str. '.html' : $str.'/index.html';
+    }
+
+    public function render(): void
+    {
+        $this->fileHtml = view($this->view, ['page' => $this])->render();
+        Storage::disk('public')->put($this->getOutputPath(), $this->fileHtml);
     }
 }
