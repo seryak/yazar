@@ -16,6 +16,8 @@ class Build extends Command
     protected $signature = 'build';
     protected $description = 'Generate static build';
 
+    protected $categories;
+
 
     public function handle(): int
     {
@@ -53,23 +55,43 @@ class Build extends Command
     protected function buildHtmlPages(Collection $collection): void
     {
         /** @var Category[] $categories */
-        $categories = Category::all();
+        $this->categories = Category::all();
         $collection->setItems($collection->getItems()->chunk($collection->itemsPerPage));
+
+        /** @var Page $previousPage */
+        /** @var Page $currentPage */
+        /** @var Page $nextPage */
+        $previousPage = $currentPage = $nextPage = null;
 
         foreach ($collection->getItems() as $subCollection) {
             foreach ($subCollection as $filePath) {
                 $page = new Page($filePath);
                 $page->generateSlug($collection->path);
-                if (isset($page->category, $categories[$page->category->slug])) {
-                    $categories[$page->category->slug]->addItem($page);
+
+                $page->previousPage = $previousPage;
+
+                if (isset($previousPage)) {
+                    $previousPage->nextPage = $page;
+                    $this->addPageToCategory($previousPage);
+                    $previousPage->render();
                 }
-                Storage::disk('public')->put($page->getOutputPath(), $page->fileHtml);
+
+                $previousPage = $page;
+
+                $page->render();
             }
         }
 
-        foreach ($categories as $category) {
+        foreach ($this->categories as $category) {
             $builder = new CategoryBuilder($category);
             $builder->buildFiles();
+        }
+    }
+
+    protected function addPageToCategory(Page $page): void
+    {
+        if (isset($page->category, $this->categories[$page->category->slug])) {
+            $this->categories[$page->category->slug]->addItem($page);
         }
     }
 }

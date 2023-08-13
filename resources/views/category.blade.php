@@ -19,5 +19,16 @@
             </p>
         </div>
     @endforeach
+
+    @if(isset($category->paginator))
+        <div class="flex">
+            @if(isset($category->paginator->prevLink)) <a class="pr-8" href="{{$category->paginator->prevLink}}"> << </a> @endif
+            @foreach($category->paginator->links as $key => $link)
+                <a class="pr-8" href="{{$link}}"> {{$key + 1}} </a>
+            @endforeach
+
+            @if(isset($category->paginator->nextLink)) <a href="{{$category->paginator->nextLink}}"> >> </a> @endif
+        </div>
+    @endif
 </main>
 @endsection
