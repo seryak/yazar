@@ -6,18 +6,18 @@ return [
     'collections' => [
         'pages' => [
             'sorting' => false,
-            'path' => '{filename}',
+            'path' => '/{fileName}',
             'items' => [
-                content_path('hello.md'),
-                content_path('test.md'),
+                content_path('pages/hello.md'),
+                content_path('pages/test.md'),
             ],
         ],
         'jetbrains-posts' => [
             'sorting' => false,
-            'path' => 'blog/jetbrains/{filename}',
+            'path' => '/blog/jetbrains/{fileName}',
             'items' => [
-                content_path('hello.md'),
-                content_path('test.md'),
+                content_path('pages/hello.md'),
+                content_path('pages/test.md'),
             ],
         ],
     ]
