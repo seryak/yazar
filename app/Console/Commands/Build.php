@@ -57,31 +57,26 @@ class Build extends Command
     {
         /** @var Category[] $categories */
         $this->categories = Category::all();
-        $collection->setItems($collection->getItems()->chunk($collection->itemsPerPage));
 
         /** @var Page $previousPage */
-        /** @var Page $currentPage */
-        /** @var Page $nextPage */
-        $previousPage = $currentPage = $nextPage = null;
+        $previousPage = null;
 
-        foreach ($collection->getItems() as $subCollection) {
-            foreach ($subCollection as $filePath) {
-                $page = new Page($filePath);
-                $page->generateSlug($collection->path);
+        foreach ($collection->getItems() as $filePath) {
+            $page = new Page($filePath);
+            $page->generateSlug($collection->path);
 
-                $page->previousPage = $previousPage;
+            $page->previousPage = $previousPage;
 
-                if (isset($previousPage)) {
-                    $previousPage->nextPage = $page;
-                    $this->addPageToCategory($previousPage);
-                    $previousPage->render();
-                    $this->frontPageCollection->addItem($page);
-                }
-
-                $previousPage = $page;
-
-                $page->render();
+            if (isset($previousPage)) {
+                $previousPage->nextPage = $page;
+                $this->addPageToCategory($previousPage);
+                $previousPage->render();
+                $this->frontPageCollection->addItem($page);
             }
+
+            $previousPage = $page;
+
+            $page->render();
         }
 
         foreach ($this->categories as $category) {
