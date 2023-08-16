@@ -30,4 +30,11 @@ class Collection
         }
         $this->items->push($item);
     }
+
+    public function addItems(array|\Illuminate\Support\Collection $items): void
+    {
+        foreach ($items as $item) {
+            $this->addItem($item);
+        }
+    }
 }
