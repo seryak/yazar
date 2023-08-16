@@ -16,14 +16,16 @@ class Build extends Command
     protected $signature = 'build';
     protected $description = 'Generate static build';
 
-    protected $categories;
+    protected array $categories;
+    protected Collection $frontPageCollection;
 
 
     public function handle(): int
     {
         $contentCollections = config('content')['collections'];
-        foreach ($contentCollections as $nameCollection => $collection) {
+        $this->frontPageCollection = new Collection;
 
+        foreach ($contentCollections as $nameCollection => $collection) {
             $this->validate($collection, $nameCollection);
 
             $collectionObject = new Collection;
@@ -33,7 +35,6 @@ class Build extends Command
 
             $this->buildHtmlPages($collectionObject);
         }
-
         $this->info('generating html pages is finish');
         return CommandAlias::SUCCESS;
     }
@@ -74,6 +75,7 @@ class Build extends Command
                     $previousPage->nextPage = $page;
                     $this->addPageToCategory($previousPage);
                     $previousPage->render();
+                    $this->frontPageCollection->addItem($page);
                 }
 
                 $previousPage = $page;
