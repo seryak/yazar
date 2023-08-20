@@ -36,10 +36,22 @@ return [
             'throw' => false,
         ],
 
+        'categories' => [
+            'driver' => 'local',
+            'root' => base_path('_content/categories'),
+            'throw' => false,
+        ],
+
+        'pages' => [
+            'driver' => 'local',
+            'root' => base_path('_content/pages'),
+            'throw' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'root' => public_path(),
+            'url' => env('APP_URL'),
             'visibility' => 'public',
             'throw' => false,
         ],
