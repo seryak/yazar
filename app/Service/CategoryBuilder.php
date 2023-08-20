@@ -10,7 +10,6 @@ class CategoryBuilder
 {
     public function __construct(public Category $category)
     {
-
     }
 
     public function buildFiles(): void
@@ -20,28 +19,28 @@ class CategoryBuilder
 
         for ($i = 1; $i <= $pageCount; $i++) {
             $temporaryCategory = clone $this->category;
-            $temporaryCategory->slug = $i === 1 ? $this->category->slug : $this->category->slug . '/'.$i;
+            $temporaryCategory->slug = $i === 1 ? $this->category->slug : $this->category->slug . '/' . $i;
 
             $paginator = new Paginator();
 
             $paginator->links = collect([]);
             for ($it = 1; $it <= $pageCount; $it++) {
-                $link = $it === 1 ? $this->category->slug : $this->category->slug . '/'. $it;
+                $link = $it === 1 ? $this->category->slug : $this->category->slug . '/' . $it;
                 $paginator->links->push($link);
             }
 
 
             if ($i === 1) {
                 $paginator->prevLink = null;
-                $paginator->nextLink = $pageCount > 1 ? $this->category->slug . '/' . $i+1 : null;
+                $paginator->nextLink = $pageCount > 1 ? $this->category->slug . '/' . $i + 1 : null;
             } else {
                 if ($i === 2) {
                     $paginator->prevLink = $this->category->slug;
                 } else {
-                    $paginator->prevLink = $this->category->slug . '/' . $i-1;
+                    $paginator->prevLink = $this->category->slug . '/' . $i - 1;
                 }
 
-                $paginator->nextLink = $i < $pageCount ? $this->category->slug . '/' . $i+1 : null;
+                $paginator->nextLink = $i < $pageCount ? $this->category->slug . '/' . $i + 1 : null;
             }
 
             $paginator->count = $pageCount;
@@ -53,9 +52,6 @@ class CategoryBuilder
             $temporaryCategory->setItems($part);
 
             Storage::disk('public')->put($temporaryCategory->getOutputPath(), $temporaryCategory->fileHtml);
-
         }
-
-
     }
 }
