@@ -37,4 +37,9 @@ class Collection
             $this->addItem($item);
         }
     }
+
+    public function sortItems(string $field, bool $descending = false): void
+    {
+        $this->items = $this->items->sortBy($field, SORT_REGULAR, $descending);
+    }
 }
