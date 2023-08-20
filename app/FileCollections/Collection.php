@@ -30,4 +30,16 @@ class Collection
         }
         $this->items->push($item);
     }
+
+    public function addItems(array|\Illuminate\Support\Collection $items): void
+    {
+        foreach ($items as $item) {
+            $this->addItem($item);
+        }
+    }
+
+    public function sortItems(string $field, bool $descending = false): void
+    {
+        $this->items = $this->items->sortBy($field, SORT_REGULAR, $descending);
+    }
 }
