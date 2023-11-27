@@ -1,5 +1,5 @@
 <?php
-/** @var \App\Models\Yazar\Page $page */ ?>
+/** @var \App\Models\Yazar\PageDocument $page */ ?>
 @extends('layout')
 
 @section('main')
@@ -22,16 +22,18 @@
         </div>
 
         <nav class="flex justify-between text-sm md:text-base">
-            @if(isset($page->previousPage))
+            @if($page->previousPage)
                 <div>
-                    <a href="{{ $page->previousPage->slug }}" title="{{ $page->previousPage->title }}"> {{ $page->previousPage->title }} </a>
+                    <a href="{{ $page->previousPage->slug }}"
+                       title="{{ $page->previousPage->title }}"> {{ $page->previousPage->title }} </a>
                 </div>
             @endif
 
-            @if(isset($page->nextPage))
-                    <div>
-                        <a href="{{ $page->nextPage->slug }}" title="{{ $page->nextPage->title }}"> {{ $page->nextPage->title }} </a>
-                    </div>
+            @if($page->nextPage)
+                <div>
+                    <a href="{{ $page->nextPage->slug }}"
+                       title="{{ $page->nextPage->title }}"> {{ $page->nextPage->title }} </a>
+                </div>
             @endif
         </nav>
     </main>

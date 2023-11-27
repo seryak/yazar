@@ -2,6 +2,8 @@
 
 namespace App\Models\Yazar;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -10,30 +12,13 @@ use Illuminate\Support\Str;
  * @property string $slug
  * @property PageDocument $fileDocument
  */
-class PageEloquent extends DocumentEloquent
+class DocumentEloquent extends Model
 {
-    use \Sushi\Sushi;
 
-    public function getRows(): array
+
+    public function getCreatedAtAttribute()
     {
-        $records = [];
-        $files = Storage::disk('documents')->allFiles();
-
-        foreach ($files as $filePath) {
-            $records[] = (new PageDocument($filePath))->toArray();
-        }
-
-        return $records;
-    }
-
-    public function getCategoryAttribute()
-    {
-        return CategoryEloquent::where('slug', $this->categoryName)->first();
-    }
-
-    protected function sushiShouldCache(): bool
-    {
-        return false;
+        return Carbon::parse($this->attributes['created_at']);
     }
 
     public function getFileDocumentAttribute(): PageDocument
@@ -49,11 +34,6 @@ class PageEloquent extends DocumentEloquent
         }
 
         return $this->attributes['slug'];
-    }
-
-    public function render(): void
-    {
-        $this->fileDocument->render($this->slug, $this);
     }
 
 

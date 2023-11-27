@@ -14,7 +14,7 @@ abstract class FileDocument
     public string $fileHtml;
     public string $title;
     public Carbon $createdAt;
-    protected string $slug;
+    protected ?string $slug;
     public array $meta;
     public string $htmlContent;
 
@@ -65,10 +65,10 @@ abstract class FileDocument
         return config('content.use_html_suffix') ? $this->slug : Str::remove('/index.html', $this->slug);
     }
 
-    public function render(): void
+    public function render(string $slug, PageEloquent $page): void
     {
-        $this->fileHtml = view($this->view, ['page' => $this])->render();
-        Storage::disk('public')->put($this->getOutputPath(), $this->fileHtml);
+        $this->fileHtml = view($this->view, ['page' => $page])->render();
+        Storage::disk('public')->put(config('content.output_directory') . '/' . $slug, $this->fileHtml);
     }
 
     public function toArray(): array
