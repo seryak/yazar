@@ -4,7 +4,6 @@ namespace App\Models\Yazar;
 
 use App\Service\MarkdownParser;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 abstract class FileDocument
@@ -37,28 +36,6 @@ abstract class FileDocument
         if (isset($parser->options['category'])) {
             $this->category = new Category($parser->options['category'].'.md');
         }
-    }
-
-    public function getOutputPath(): string
-    {
-        $filenamePath = config('content.use_html_suffix') ? $this->slug. '.html' : $this->slug.'/index.html';
-        return config('content.output_directory').'/'. $filenamePath;
-    }
-
-    /**
-     * Generate slug from pattern
-     * @param string $pattern
-     * @return void
-     */
-    public function generateSlug(string $pattern): void
-    {
-        $str = $pattern;
-        $variables = Str::of($str)->matchAll('/\\{(.*?)\\}/');
-        foreach ($variables as $var) {
-            $str = Str::of($str)->replace('{'.$var.'}', $this->$var);
-        }
-
-        $this->slug = config('content.use_html_suffix') ? $str. '.html' : $str.'/index.html';
     }
 
     public function getSlug(): string

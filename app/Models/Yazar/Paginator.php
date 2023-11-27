@@ -24,7 +24,6 @@ class Paginator
             $this->links->push($link);
         }
 
-
         if ($currentPageNumber === 1) {
             $this->prevLink = null;
             $this->nextLink = $pageCount > 1 ? $slug . '/' . $currentPageNumber + 1 : null;

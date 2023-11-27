@@ -3,9 +3,7 @@
 namespace App\Console\Commands;
 
 use App\FileCollections\Collection;
-use App\Models\Yazar\Category;
 use App\Models\Yazar\CategoryEloquent;
-use App\Models\Yazar\PageDocument;
 use App\Models\Yazar\PageEloquent;
 use App\Models\Yazar\Paginator;
 use App\Service\CategoryBuilder;
@@ -25,31 +23,9 @@ class Build extends Command
 
     public function handle(): int
     {
-        $files = PageEloquent::all();
-//        dd($files->toArray());
-//        $categories = CategoryEloquent::all();
-//        dd(CategoryEloquent::find(2));
-//        dd(CategoryEloquent::find(2)->pages);
-//        dd(PageEloquent::where('category', CategoryEloquent::find(2)->slug)->first()->posts());
-        $this->buildPages($files);
+        $this->buildPages();
         $this->buildCategories();
-//        dd(PageEloquent::query()->where('category', 'jetbrains')->count());
 
-//        $contentCollections = config('content')['collections'];
-//        $this->frontPageCollection = new Collection;
-
-//        foreach ($contentCollections as $nameCollection => $collection) {
-//            $this->validate($collection, $nameCollection);
-//
-//            $collectionObject = new Collection;
-//            $collectionObject->setItems($collection['items']);
-//            $collectionObject->path = $collection['path'];
-//            $collectionObject->sorting = $collection['sorting'];
-//
-//            $this->buildHtmlPages($collectionObject);
-//        }
-
-//        $this->buildFrontPage();
         $this->move();
 
         $this->info('generating html pages is finish');
@@ -67,55 +43,20 @@ class Build extends Command
         }
     }
 
-    protected function buildHtmlPages(Collection $collection): void
-    {
-        /** @var PageDocument $previousPage */
-        $previousPage = null;
-
-        $counter = 0;
-        foreach ($collection->getItems() as $filePath) {
-            $page = new PageDocument($filePath);
-            $page->generateSlug($collection->path);
-
-            $page->previousPage = $previousPage;
-
-            if (isset($previousPage)) {
-                $previousPage->nextPage = $page;
-                $previousPage->render();
-                $this->frontPageCollection->addItem($page);
-            }
-
-            $previousPage = $page;
-
-            $page->render();
-
-            if ($counter === $collection->getItems()->count() - 1) {
-                $this->frontPageCollection->addItem($page);
-            }
-            $counter++;
-        }
-    }
-
-    protected function buildPages(\Illuminate\Database\Eloquent\Collection $collection): void
+    protected function buildPages(): void
     {
         /** @var PageEloquent $previousPage */
         /** @var PageEloquent $nextPage */
         /** @var PageEloquent $page */
 
-        $collection = $collection->getIterator();
+        $collection = PageEloquent::all()->getIterator();
 
         foreach ($collection as $page) {
             $page->previousPage = prev($collection);
             $page->nextPage = next($collection);
 
             $page->render();
-
         }
-
-//        foreach ($this->categories as $category) {
-//            $builder = new CategoryBuilder($category);
-//            $builder->buildFiles();
-//        }
     }
 
     protected function buildFrontPage(): void
