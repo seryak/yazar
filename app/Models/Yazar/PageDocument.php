@@ -22,6 +22,7 @@ class PageDocument extends FileDocument
 
         $this->view = $parser->options['view::extends'];
         $this->title = $parser->options['title'];
+        $this->slug = isset($parser->options['slug']) ? $parser->options['slug'] : null;
         $this->createdAt = Carbon::parse($parser->options['created_at']);
         $this->category = $parser->options['category'];
         $this->htmlContent = $parser->content;
@@ -42,38 +43,18 @@ class PageDocument extends FileDocument
      * @param string $pattern
      * @return void
      */
-    public function generateSlug(?string $pattern): void
-    {
-        $str = $pattern;
-        $variables = Str::of($str)->matchAll('/\\{(.*?)\\}/');
-        foreach ($variables as $var) {
-            $str = Str::of($str)->replace('{'.$var.'}', $this->$var);
-        }
-
-        $this->slug = config('content.use_html_suffix') ? $str. '.html' : $str.'/index.html';
-    }
-
-    public function getSlug(): string
-    {
-        return config('content.use_html_suffix') ? $this->slug : Str::remove('/index.html', $this->slug);
-    }
-
-    public function render(): void
-    {
-        $this->fileHtml = view($this->view, ['page' => $this])->render();
-        Storage::disk('public')->put($this->getOutputPath(), $this->fileHtml);
-    }
 
     public function toArray(): array
     {
         return [
             'title' => $this->title,
+            'slug' => $this->slug,
             'view' => $this->view,
-            'createdAt' => $this->createdAt,
+            'created_at' => $this->createdAt,
             'fileName' => $this->fileName,
             'filePath' => $this->filePath,
             'htmlContent' => $this->htmlContent,
-            'category' => $this->category,
+            'categoryName' => $this->category,
         ];
     }
 }
