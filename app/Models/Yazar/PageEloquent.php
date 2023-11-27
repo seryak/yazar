@@ -3,7 +3,6 @@
 namespace App\Models\Yazar;
 
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 /**
  * @property string $title
@@ -34,21 +33,6 @@ class PageEloquent extends DocumentEloquent
     protected function sushiShouldCache(): bool
     {
         return false;
-    }
-
-    public function getFileDocumentAttribute(): PageDocument
-    {
-        return new PageDocument($this->filePath);
-    }
-
-    public function getSlugAttribute(): string
-    {
-        if (!$this->attributes['slug']) {
-            $path = Str::replace('.md', '', $this->filePath);
-            $this->attributes['slug'] = config('content.use_html_suffix') ? $path. '.html' : $path.'/index.html';
-        }
-
-        return $this->attributes['slug'];
     }
 
     public function render(): void
