@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\FileCollections\Collection;
 use App\Models\Yazar\Category;
-use App\Models\Yazar\Page;
+use App\Models\Yazar\PageFile;
 use App\Models\Yazar\Paginator;
 use App\Service\CategoryBuilder;
 use Illuminate\Console\Command;
@@ -62,12 +62,12 @@ class Build extends Command
         /** @var Category[] $categories */
         $this->categories = Category::all();
 
-        /** @var Page $previousPage */
+        /** @var PageFile $previousPage */
         $previousPage = null;
 
         $counter = 0;
         foreach ($collection->getItems() as $filePath) {
-            $page = new Page($filePath);
+            $page = new PageFile($filePath);
             $page->generateSlug($collection->path);
 
             $page->previousPage = $previousPage;
