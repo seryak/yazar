@@ -21,7 +21,7 @@ class DocumentEloquent extends Model
         return Carbon::parse($this->attributes['created_at']);
     }
 
-    public function getFileDocumentAttribute(): PageDocument
+    public function getFileDocumentAttribute(): FileDocument
     {
         return new PageDocument($this->filePath);
     }

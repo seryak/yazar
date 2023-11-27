@@ -33,6 +33,12 @@ class PageDocument extends FileDocument
 //        }
     }
 
+    public function render(string $slug, PageEloquent $page): void
+    {
+        $this->fileHtml = view($this->view, ['page' => $page])->render();
+        Storage::disk('public')->put(config('content.output_directory') . '/' . $slug, $this->fileHtml);
+    }
+
     public function getOutputPath(): string
     {
         return config('content.output_directory').'/'. $this->slug;

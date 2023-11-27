@@ -11,7 +11,7 @@
 
         @if(isset($page->category))
             <a
-                href="{{ $page->category->slug }}"
+                href="/{{ $page->category->slug }}"
                 title="{{ $page->category->title }}"
                 class="inline-block bg-gray-300 hover:bg-indigo-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 mb-6 px-3 pt-px"
             >{{ $page->category->title }}</a>
