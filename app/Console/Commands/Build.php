@@ -4,9 +4,11 @@ namespace App\Console\Commands;
 
 use App\FileCollections\Collection;
 use App\Models\Yazar\Category;
+use App\Models\Yazar\CategoryEloquent;
 use App\Models\Yazar\PageDocument;
 use App\Models\Yazar\PageEloquent;
 use App\Models\Yazar\Paginator;
+use App\Service\CategoryBuilder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +19,7 @@ class Build extends Command
     protected $signature = 'build';
     protected $description = 'Generate static build';
 
-    protected array $categories;
+    protected \Illuminate\Support\Collection $categories;
     protected Collection $frontPageCollection;
 
 
@@ -26,9 +28,11 @@ class Build extends Command
         $files = PageEloquent::all();
 //        dd($files->toArray());
 //        $categories = CategoryEloquent::all();
-//        dd(CategoryEloquent::find(2)->posts());
+//        dd(CategoryEloquent::find(2));
+//        dd(CategoryEloquent::find(2)->pages);
 //        dd(PageEloquent::where('category', CategoryEloquent::find(2)->slug)->first()->posts());
         $this->buildPages($files);
+        $this->buildCategories();
 //        dd(PageEloquent::query()->where('category', 'jetbrains')->count());
 
 //        $contentCollections = config('content')['collections'];
@@ -52,16 +56,19 @@ class Build extends Command
         return CommandAlias::SUCCESS;
     }
 
-    protected function buildCategories()
+    protected function buildCategories(): void
     {
+        /** @var CategoryEloquent[] $categories */
+        $this->categories = CategoryEloquent::all();
 
+        foreach ($this->categories as $category) {
+            $builder = new CategoryBuilder($category);
+            $builder->buildFiles();
+        }
     }
 
     protected function buildHtmlPages(Collection $collection): void
     {
-        /** @var Category[] $categories */
-        $this->categories = Category::all();
-
         /** @var PageDocument $previousPage */
         $previousPage = null;
 
@@ -87,11 +94,6 @@ class Build extends Command
             }
             $counter++;
         }
-
-//        foreach ($this->categories as $category) {
-//            $builder = new CategoryBuilder($category);
-//            $builder->buildFiles();
-//        }
     }
 
     protected function buildPages(\Illuminate\Database\Eloquent\Collection $collection): void

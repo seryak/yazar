@@ -41,7 +41,8 @@ abstract class FileDocument
 
     public function getOutputPath(): string
     {
-        return config('content.output_directory').'/'. $this->slug;
+        $filenamePath = config('content.use_html_suffix') ? $this->slug. '.html' : $this->slug.'/index.html';
+        return config('content.output_directory').'/'. $filenamePath;
     }
 
     /**
@@ -63,12 +64,6 @@ abstract class FileDocument
     public function getSlug(): string
     {
         return config('content.use_html_suffix') ? $this->slug : Str::remove('/index.html', $this->slug);
-    }
-
-    public function render(string $slug, PageEloquent $page): void
-    {
-        $this->fileHtml = view($this->view, ['page' => $page])->render();
-        Storage::disk('public')->put(config('content.output_directory') . '/' . $slug, $this->fileHtml);
     }
 
     public function toArray(): array

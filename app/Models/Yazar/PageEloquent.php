@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
  * @property string $title
  * @property string $slug
  * @property PageDocument $fileDocument
+ * @property CategoryEloquent $category
  */
 class PageEloquent extends DocumentEloquent
 {

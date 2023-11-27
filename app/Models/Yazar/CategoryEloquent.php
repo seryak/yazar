@@ -2,16 +2,25 @@
 
 namespace App\Models\Yazar;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
-class CategoryEloquent extends Model
+/**
+ * @property string $title
+ * @property Collection $pages
+ */
+class CategoryEloquent extends DocumentEloquent
 {
     use \Sushi\Sushi;
 
-    public function posts()
+    public function getPagesAttribute()
     {
-        return PageEloquent::where('category', $this->slug)->get();
+        return PageEloquent::where('categoryName', $this->slug)->get();
+    }
+
+    public function getFileDocumentAttribute(): Category
+    {
+        return new Category($this->filePath);
     }
 
     public function getRows(): array
@@ -29,6 +38,6 @@ class CategoryEloquent extends Model
 
     protected function sushiShouldCache(): bool
     {
-        return true;
+        return false;
     }
 }

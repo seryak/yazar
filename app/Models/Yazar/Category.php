@@ -10,8 +10,8 @@ use Psy\Util\Str;
 class Category extends FileDocument
 {
     public string $description;
-    public string $slug;
-    public Paginator $paginator;
+    public ?string $slug;
+    public ?Paginator $paginator;
 
     /**
      * @test {@see Tests\Unit\App\Models\Page\Constructor)}
@@ -28,10 +28,10 @@ class Category extends FileDocument
         $this->title = $parser->options['title'];
         $this->createdAt = Carbon::parse($parser->options['created_at']);
         $this->htmlContent = $parser->content;
-        $this->slug = $parser->options['slug'];
+        $this->slug = isset($parser->options['slug']) ? $parser->options['slug'] : null;
         $this->description = $parser->options['description'];
         $this->fileName = $path;
-        $this->fileHtml = view($this->view, ['category' => $this])->render();
+//        $this->fileHtml = view($this->view, ['category' => $this])->render();
     }
 
 
@@ -47,19 +47,14 @@ class Category extends FileDocument
         return $categories;
     }
 
-    public function getOutputPath(): string
-    {
-        $filenamePath = config('content.use_html_suffix') ? $this->slug. '.html' : $this->slug.'/index.html';
-        return config('content.output_directory').'/'. $filenamePath;
-    }
-
     public function toArray(): array
     {
         return [
             'title' => $this->title,
             'view' => $this->view,
-            'createdAt' => $this->createdAt,
+            'created_at' => $this->createdAt,
             'fileName' => $this->fileName,
+            'filePath' => $this->fileName,
             'slug' => \Illuminate\Support\Str::replace('.md', '', $this->fileName),
         ];
     }

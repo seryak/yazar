@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\App\Models\Page;
 
-use App\Models\Yazar\Page;
+use App\Models\Yazar\PageDocument;
 use Tests\TestCase;
 
 /**
- * {@see Page::__construct()}
+ * {@see PageDocument::__construct()}
  */
 class Constructor extends TestCase
 {
@@ -29,7 +29,7 @@ class Constructor extends TestCase
 
         $this->mockFile($fileContent);
         $this->mockView();
-        $page = new Page(content_path(self::FILEPATH));
+        $page = new PageDocument(content_path(self::FILEPATH));
 
         $this->assertEquals('test-test', $page->view);
         $this->assertEquals('test-test', $page->fileName);
@@ -41,7 +41,7 @@ class Constructor extends TestCase
     public function testWrongFile()
     {
         $this->expectExceptionMessage('file_get_contents(wrong): Failed to open stream: No such file or directory');
-        new Page('wrong');
+        new PageDocument('wrong');
     }
 
     public function testWrongView()
@@ -60,7 +60,7 @@ class Constructor extends TestCase
 
         $this->mockFile($fileContent);
         $this->expectExceptionMessage('View [test-test] not found.');
-        $page = new Page(content_path(self::FILEPATH));
+        $page = new PageDocument(content_path(self::FILEPATH));
     }
 
     protected function mockFile(string $content, bool $create = true): void
