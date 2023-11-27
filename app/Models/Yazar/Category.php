@@ -5,7 +5,6 @@ namespace App\Models\Yazar;
 use App\Service\MarkdownParser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
-use Psy\Util\Str;
 
 class Category extends FileDocument
 {
@@ -31,7 +30,6 @@ class Category extends FileDocument
         $this->slug = isset($parser->options['slug']) ? $parser->options['slug'] : null;
         $this->description = $parser->options['description'];
         $this->fileName = $path;
-//        $this->fileHtml = view($this->view, ['category' => $this])->render();
     }
 
 

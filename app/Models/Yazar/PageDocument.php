@@ -5,7 +5,6 @@ namespace App\Models\Yazar;
 use App\Service\MarkdownParser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class PageDocument extends FileDocument
 {
@@ -28,20 +27,12 @@ class PageDocument extends FileDocument
         $this->htmlContent = $parser->content;
         $this->fileName = explode('.', basename($path))[0];
         $this->filePath = $path;
-//        if (isset($parser->options['category'])) {
-//            $this->category = new Category($parser->options['category'].'.md');
-//        }
     }
 
     public function render(string $slug, PageEloquent $page): void
     {
         $this->fileHtml = view($this->view, ['page' => $page])->render();
         Storage::disk('public')->put(config('content.output_directory') . '/' . $slug, $this->fileHtml);
-    }
-
-    public function getOutputPath(): string
-    {
-        return config('content.output_directory').'/'. $this->slug;
     }
 
     /**
