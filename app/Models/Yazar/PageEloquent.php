@@ -38,7 +38,7 @@ class PageEloquent extends DocumentEloquent
 
     public function render(): void
     {
-        $this->fileDocument->render($this->slug, $this);
+        $this->fileDocument->render($this->path, $this);
     }
 
 

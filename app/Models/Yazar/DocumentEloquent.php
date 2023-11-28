@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 /**
  * @property string $title
  * @property string $slug
+ * @property string $path
  * @property PageDocument $fileDocument
  */
 class DocumentEloquent extends Model
@@ -28,11 +29,16 @@ class DocumentEloquent extends Model
     public function getSlugAttribute(): string
     {
         if (!$this->attributes['slug']) {
-            $path = Str::replace('.md', '', $this->filePath);
-            $this->attributes['slug'] = config('content.use_html_suffix') ? $path. '.html' : $path.'/index.html';
+            $this->attributes['slug'] = Str::replace('.md', '', $this->filePath);
         }
 
         return $this->attributes['slug'];
+    }
+
+    public function getPathAttribute(): string
+    {
+        $path = Str::replace('.md', '', $this->filePath);
+        return config('content.use_html_suffix') ? $path. '.html' : $path.'/index.html';
     }
 
 
