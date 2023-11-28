@@ -4,26 +4,18 @@ namespace App\Models\Yazar;
 
 use App\Service\MarkdownParser;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class Page
+abstract class FileDocument
 {
     public string $view;
     public string $fileName;
     public string $fileHtml;
-
     public string $title;
     public Carbon $createdAt;
-
-    public string $slug;
-
+    protected ?string $slug;
     public array $meta;
     public string $htmlContent;
-    public ?Category $category;
-
-    public ?Page $nextPage = null;
-    public ?Page $previousPage = null;
 
     /**
      * @test {@see Tests\Unit\App\Models\Page\Constructor)}
@@ -46,30 +38,19 @@ class Page
         }
     }
 
-    public function getOutputPath(): string
+    public function getSlug(): string
     {
-        return config('content.output_directory').'/'. $this->slug;
+        return config('content.use_html_suffix') ? $this->slug : Str::remove('/index.html', $this->slug);
     }
 
-    /**
-     * Generate slug from pattern
-     * @param string $pattern
-     * @return void
-     */
-    public function generateSlug(string $pattern): void
+    public function toArray(): array
     {
-        $str = $pattern;
-        $variables = Str::of($str)->matchAll('/\\{(.*?)\\}/');
-        foreach ($variables as $var) {
-            $str = Str::of($str)->replace('{'.$var.'}', $this->$var);
-        }
-
-        $this->slug = config('content.use_html_suffix') ? $str. '.html' : $str.'/index.html';
-    }
-
-    public function render(): void
-    {
-        $this->fileHtml = view($this->view, ['page' => $this])->render();
-        Storage::disk('public')->put($this->getOutputPath(), $this->fileHtml);
+        return [
+            'title' => $this->title,
+            'view' => $this->view,
+            'createdAt' => $this->createdAt,
+            'fileName' => $this->fileName,
+            'htmlContent' => $this->htmlContent,
+        ];
     }
 }

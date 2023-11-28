@@ -5,7 +5,7 @@ namespace App\FileCollections;
 class Collection
 {
     protected \Illuminate\Support\Collection $items;
-    public int $itemsPerPage = 25;
+    public int $itemsPerPage = 3;
     public ?string $sorting = null;
     public string $path = '{filename}';
 
