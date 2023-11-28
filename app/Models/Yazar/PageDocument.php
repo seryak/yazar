@@ -34,10 +34,10 @@ class PageDocument extends FileDocument
         $this->filePath = $path;
     }
 
-    public function render(string $slug, PageEloquent $page): void
+    public function render(string $path, PageEloquent $page): void
     {
         $this->fileHtml = view($this->view, ['page' => $page])->render();
-        Storage::disk('public')->put(config('content.output_directory') . '/' . $slug, $this->fileHtml);
+        Storage::disk('public')->put(config('content.output_directory') . '/' . $path, $this->fileHtml);
     }
 
     /**
