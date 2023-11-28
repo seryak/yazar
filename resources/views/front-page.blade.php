@@ -26,7 +26,6 @@
                     <a class="pr-8" href="{{$paginator->prevLink}}"> << </a>
                 @endif
                 @foreach($paginator->links as $key => $link)
-                    @php(ray($link))
                     <a class="pr-8 vottut" href="{{$link}}"> {{$key + 1}} </a>
                 @endforeach
 

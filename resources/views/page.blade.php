@@ -24,14 +24,14 @@
         <nav class="flex justify-between text-sm md:text-base">
             @if($page->previousPage)
                 <div>
-                    <a href="{{ $page->previousPage->slug }}"
+                    <a href="/{{ $page->previousPage->slug }}"
                        title="{{ $page->previousPage->title }}"> {{ $page->previousPage->title }} </a>
                 </div>
             @endif
 
             @if($page->nextPage)
                 <div>
-                    <a href="{{ $page->nextPage->slug }}"
+                    <a href="/{{ $page->nextPage->slug }}"
                        title="{{ $page->nextPage->title }}"> {{ $page->nextPage->title }} </a>
                 </div>
             @endif
