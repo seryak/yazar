@@ -52,10 +52,9 @@ class Build extends Command
 
         $collection = PageEloquent::all()->getIterator();
 
-        foreach ($collection as $page) {
-            $page->previousPage = prev($collection);
-            $page->nextPage = next($collection);
-
+        foreach ($collection as $i => $page) {
+            $page->previousPage = isset($collection[$i-1]) ? $collection[$i-1] : null;
+            $page->nextPage = isset($collection[$i+1]) ? $collection[$i+1] : null;
             $page->render();
         }
     }
