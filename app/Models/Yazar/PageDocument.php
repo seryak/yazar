@@ -5,6 +5,7 @@ namespace App\Models\Yazar;
 use App\Service\MarkdownParser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use League\CommonMark\Exception\CommonMarkException;
 
 class PageDocument extends FileDocument
 {
@@ -17,7 +18,11 @@ class PageDocument extends FileDocument
 
         $file = Storage::disk('documents')->get($path);
 
-        $parser->parse($file);
+        try {
+            $parser->parse($file);
+        } catch (CommonMarkException $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
 
         $this->view = $parser->options['view::extends'];
         $this->title = $parser->options['title'];

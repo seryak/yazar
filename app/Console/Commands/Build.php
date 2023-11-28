@@ -25,6 +25,7 @@ class Build extends Command
     {
         $this->buildPages();
         $this->buildCategories();
+        $this->buildFrontPage();
 
         $this->move();
 
@@ -61,14 +62,14 @@ class Build extends Command
 
     protected function buildFrontPage(): void
     {
-        $this->frontPageCollection->sortItems('createdAt', true);
-        $pageCount = ceil($this->frontPageCollection->getItems()->count() / $this->frontPageCollection->itemsPerPage);
+        $collection = PageEloquent::orderBy('createdAt', 'desc')->get();
+        $pageCount = ceil($collection->count() / 1);
 
         for ($i = 1; $i <= $pageCount; $i++) {
             $slug = $i === 1 ? 'index.html' : '/' . $i;
 
             $paginator = new Paginator($pageCount, '/', $i);
-            $items = $this->frontPageCollection->getItems()->forPage($i, $this->frontPageCollection->itemsPerPage);
+            $items = $collection->forPage($i, 1);
             $html = view('front-page', compact('items', 'paginator'))->render();
 
             Storage::disk('public')->put(config('content.output_directory') . '/' . $slug, $html);
