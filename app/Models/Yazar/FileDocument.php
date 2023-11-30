@@ -4,7 +4,9 @@ namespace App\Models\Yazar;
 
 use App\Service\MarkdownParser;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use League\CommonMark\Exception\CommonMarkException;
 
 abstract class FileDocument
 {
@@ -23,19 +25,22 @@ abstract class FileDocument
     public function __construct(string $path)
     {
         $parser = new MarkdownParser;
+        $file = Storage::disk('documents')->get($path);
 
-        $file = file_get_contents($path);
-
-        $parser->parse($file);
+        try {
+            $parser->parse($file);
+        } catch (CommonMarkException $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
 
         $this->view = $parser->options['view::extends'];
         $this->title = $parser->options['title'];
+        $this->slug = isset($parser->options['slug']) ? $parser->options['slug'] : null;
         $this->createdAt = Carbon::parse($parser->options['created_at']);
+        $this->category = isset($parser->options['category']) ? $parser->options['category'] : null;
         $this->htmlContent = $parser->content;
         $this->fileName = explode('.', basename($path))[0];
-        if (isset($parser->options['category'])) {
-            $this->category = new Category($parser->options['category'].'.md');
-        }
+        $this->filePath = $path;
     }
 
     public function getSlug(): string
