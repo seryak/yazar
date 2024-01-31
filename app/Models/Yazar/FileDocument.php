@@ -32,7 +32,6 @@ abstract class FileDocument
         } catch (CommonMarkException $e) {
             throw new \RuntimeException($e->getMessage());
         }
-
         $this->view = $parser->options['view::extends'];
         $this->title = $parser->options['title'];
         $this->slug = isset($parser->options['slug']) ? $parser->options['slug'] : null;
@@ -41,6 +40,7 @@ abstract class FileDocument
         $this->htmlContent = $parser->content;
         $this->fileName = explode('.', basename($path))[0];
         $this->filePath = $path;
+        $this->meta = $parser->options;
     }
 
     public function getSlug(): string
@@ -56,6 +56,7 @@ abstract class FileDocument
             'createdAt' => $this->createdAt,
             'fileName' => $this->fileName,
             'htmlContent' => $this->htmlContent,
+            'meta' => $this->meta,
         ];
     }
 }
