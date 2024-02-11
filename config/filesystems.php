@@ -48,6 +48,12 @@ return [
             'throw' => false,
         ],
 
+        'documents' => [
+            'driver' => 'local',
+            'root' => base_path('_content/documents'),
+            'throw' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => public_path(),
