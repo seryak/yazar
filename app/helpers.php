@@ -13,3 +13,10 @@ if (!function_exists('content_path')) {
         return base_path('_content/' . $path);
     }
 }
+
+if (!function_exists('storage')) {
+    function storage(string $path): string
+    {
+        return env('STORAGE_URL') . $path;
+    }
+}
