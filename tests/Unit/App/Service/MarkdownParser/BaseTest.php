@@ -13,7 +13,7 @@ class BaseTest extends TestCase
     /**
      * {@see MarkdownParser::__construct()}
      */
-    public function testConstructor(): void
+    public function test_constructor(): void
     {
         $object = new MarkdownParser;
         $reflectedClass = new \ReflectionClass($object);
@@ -32,9 +32,9 @@ class BaseTest extends TestCase
     /**
      * {@see MarkdownParser::parse()}
      */
-    public function testParse(): void
+    public function test_parse(): void
     {
-        $parserString = <<<EOT
+        $parserString = <<<'EOT'
         ---
         view::extends: layout
         view::section: content
@@ -47,7 +47,7 @@ class BaseTest extends TestCase
         olololo
         EOT;
 
-        $object = new MarkdownParser();
+        $object = new MarkdownParser;
         $object->parse($parserString);
 
         $this->assertEquals('layout', $object->options['view::extends']);
@@ -61,21 +61,34 @@ class BaseTest extends TestCase
         <h1>testtext</h1>\n<p>olololo</p>\n
         EOT;
 
+        $assertMarkdownString = <<<'EOT'
+        # testtext
+        olololo
+        EOT;
+
         $this->assertEquals($assertContentString, $object->content);
+        $this->assertEquals($assertMarkdownString, $object->markdownContent);
     }
 
     /**
      * {@see MarkdownParser::parse()}
      */
-    public function testParseFails(): void
+    public function test_parse_fails(): void
     {
-        $parserString = <<<EOT
+        $parserString = <<<'EOT'
         # testtext
         olololo
         EOT;
 
-        $this->expectExceptionMessage('Call to undefined method League\CommonMark\Output\RenderedContent::getFrontMatter()');
-        $object = new MarkdownParser();
+        $object = new MarkdownParser;
         $object->parse($parserString);
+
+        $assertContentString = <<<EOT
+        <h1>testtext</h1>\n<p>olololo</p>\n
+        EOT;
+
+        $this->assertEquals($assertContentString, $object->content);
+        $this->assertEquals('# testtext'.PHP_EOL.'olololo', $object->markdownContent);
+        $this->assertEquals([], $object->options);
     }
 }

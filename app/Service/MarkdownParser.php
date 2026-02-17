@@ -6,14 +6,20 @@ use League\CommonMark\Environment\Environment;
 use League\CommonMark\Exception\CommonMarkException;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\FrontMatter\FrontMatterExtension;
+use League\CommonMark\Extension\FrontMatter\FrontMatterParserInterface;
 use League\CommonMark\MarkdownConverter;
 
 class MarkdownParser
 {
     protected MarkdownConverter $parser;
-    public string $content;
-    public array $options;
 
+    protected FrontMatterParserInterface $frontMatterParser;
+
+    public string $content;
+
+    public string $markdownContent;
+
+    public array $options;
 
     /**
      * @test {@see \Tests\Unit\App\Service\MarkdownParser\BaseTest::testConstructor()}
@@ -22,20 +28,29 @@ class MarkdownParser
     {
         $config = [];
         $environment = new Environment($config);
-        $environment->addExtension(new CommonMarkCoreExtension());
-        $environment->addExtension(new FrontMatterExtension());
+        $frontMatterExtension = new FrontMatterExtension;
+
+        $environment->addExtension(new CommonMarkCoreExtension);
+        $environment->addExtension($frontMatterExtension);
 
         $this->parser = new MarkdownConverter($environment);
+        $this->frontMatterParser = $frontMatterExtension->getFrontMatterParser();
     }
 
     /**
      * @test {@see \Tests\Unit\App\Service\MarkdownParser\BaseTest::testParse()}
+     *
      * @throws CommonMarkException
      */
     public function parse(string $string): void
     {
-        $result = $this->parser->convert($string);
+        $input = $this->frontMatterParser->parse($string);
+        $result = $this->parser->convert($input->getContent());
+
+        $frontMatter = $input->getFrontMatter();
+
         $this->content = $result->getContent();
-        $this->options = $result->getFrontMatter();
+        $this->markdownContent = $input->getContent();
+        $this->options = is_array($frontMatter) ? $frontMatter : [];
     }
 }
