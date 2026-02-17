@@ -13,6 +13,7 @@
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^2.8",
         "spatie/laravel-ray": "^1.32",
+        "staudenmeir/eloquent-json-relations": "^1.14",
         "webmozart/assert": "^1.11"
     },
     "require-dev": {
