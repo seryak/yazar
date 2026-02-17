@@ -1,13 +1,14 @@
 <?php
-/** @var \App\Models\Yazar\PageDocument $page */ ?>
+/** @var \App\Models\Document $page */ ?>
 @extends('layout')
 
 @section('main')
     <main role="main" class="flex-auto w-full container max-w-4xl mx-auto py-16 px-6">
-        <h1 class="leading-none mb-2 text-5xl font-bold">{{$page->title}} @if(isset($page->category))
+        <h1 class="leading-none mb-2 text-5xl font-bold">{{$page->title}}
+            @if(isset($page->category))
                 {{ $page->category->title }}
             @endif</h1>
-        <p class="text-gray-700 text-xl md:mt-0 mb-6">{{$page->createdAt->format('d-m-Y')}}</p>
+        <p class="text-gray-700 text-xl md:mt-0 mb-6">{{$page->published_at->format('d-m-Y')}}</p>
 
         @if(isset($page->category))
             <a

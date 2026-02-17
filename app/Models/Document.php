@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Casts\DocumentMetaCast;
 use App\Enums\DocumentType;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Document extends Model
 {
@@ -19,6 +21,7 @@ class Document extends Model
         'meta',
         'content',
         'type',
+        'slug',
         'published_at',
     ];
 
@@ -30,9 +33,15 @@ class Document extends Model
     protected function casts(): array
     {
         return [
-            'meta' => 'array',
+            'meta' => DocumentMetaCast::class,
             'type' => DocumentType::class,
             'published_at' => 'datetime',
         ];
+    }
+
+    public function getPathForStaticPageAttribute(): string
+    {
+        $path = Str::replace('.md', '', $this->path);
+        return config('content.use_html_suffix') ? $path.'.html' : $path.'/index.html';
     }
 }

@@ -6,6 +6,7 @@ use App\Enums\DocumentType;
 use App\Models\Document;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use League\CommonMark\Exception\CommonMarkException;
 
 class DocumentImportService
@@ -61,6 +62,7 @@ class DocumentImportService
             ['path' => $filePath, 'type' => $this->type->value],
             [
                 'meta' => $parser->options,
+                'slug' => Str::replace('.md', '', $filePath),
                 'content' => $parser->markdownContent,
                 'published_at' => $parser->options['created_at'],
             ]

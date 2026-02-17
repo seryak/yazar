@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
             $table->string('path');
+            $table->string('slug');
             $table->json('meta');
             $table->text('content');
             $table->string('type');

@@ -13,8 +13,8 @@
             <div class="flex flex-col mb-4">
                 <p class="m-0">
                     <a href="{{$page->slug}}" class="text-2xl text-gray-900 font-semibold">
-                        {{ $page->title }} <span
-                            class="text-gray-700 font-medium text-base"> - {{ $page->createdAt->format('d.m.Y') }}</span>
+                        {{ $page->meta->title }} <span
+                            class="text-gray-700 font-medium text-base"> - {{ $page->published_at->format('d.m.Y') }}</span>
                     </a>
                 </p>
             </div>

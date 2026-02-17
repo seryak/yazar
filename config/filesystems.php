@@ -56,6 +56,15 @@ return [
             'throw' => false,
         ],
 
+        'static_output' => [
+            'driver' => 'local',
+            'root' => public_path(config('content.output_directory')),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
