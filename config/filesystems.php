@@ -50,9 +50,9 @@ return [
             'throw' => false,
         ],
 
-        'documents' => [
+        'posts' => [
             'driver' => 'local',
-            'root' => base_path('_content/documents'),
+            'root' => base_path('_content/posts'),
             'throw' => false,
         ],
 
