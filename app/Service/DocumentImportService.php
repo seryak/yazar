@@ -52,6 +52,20 @@ class DocumentImportService
         ];
     }
 
+    public static function importAllConfiguredDisks(): void
+    {
+        $importMap = [
+            'posts' => DocumentType::Post,
+            'pages' => DocumentType::Page,
+            'categories' => DocumentType::Category,
+        ];
+
+        foreach ($importMap as $disk => $type) {
+            $service = new self($disk, $type);
+            $service->import();
+        }
+    }
+
     private function importFile(string $filePath): void
     {
         $content = Storage::disk($this->diskName)->get($filePath);

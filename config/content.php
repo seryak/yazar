@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'storage_url' => env('STORAGE_URL', ''),
+    'render_mode' => env('CONTENT_RENDER_MODE', 'dynamic'),
+    'pagination_per_page' => env('CONTENT_PAGINATION_PER_PAGE', 1),
     'use_html_suffix' => env('USE_HTML_SUFFIX', false),
     'output_directory' => env('OUTPUT_DIRECTORY', 'build'),
     'collections' => [
