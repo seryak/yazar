@@ -1,7 +1,7 @@
 <?php
 
 if (! function_exists('test')) {
-    function test()
+    function test(): never
     {
         dd('test');
     }

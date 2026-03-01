@@ -6,6 +6,7 @@ use App\ValueObjects\DocumentMeta;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use InvalidArgumentException;
 
+/** @implements CastsAttributes<?DocumentMeta, mixed> */
 class DocumentMetaCast implements CastsAttributes
 {
     /**

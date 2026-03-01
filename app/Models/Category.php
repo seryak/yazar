@@ -6,13 +6,15 @@ use App\Enums\DocumentType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Post;
 
 /**
  * @property-read Collection<int, Post> $posts
  */
 class Category extends Document
 {
-    public function posts(): HasMany|Category
+    /** @return HasMany<Post, $this> */
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class, 'meta->category', 'slug');
     }

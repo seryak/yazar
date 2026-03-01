@@ -14,6 +14,7 @@ class Paginator
 
     public int $currentPage = 1;
 
+    /** @var Collection<int, string> */
     public Collection $links;
 
     public function __construct(int $pageCount, string $slug, int $currentPageNumber)

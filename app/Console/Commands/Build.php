@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Enums\DocumentType;
-use App\FileCollections\Collection;
 use App\Models\Category;
 use App\Models\Document;
 use App\Models\Post;
@@ -20,9 +19,8 @@ class Build extends Command
 
     protected $description = 'Generate static build';
 
+    /** @var \Illuminate\Support\Collection<int, Category> */
     protected \Illuminate\Support\Collection $categories;
-
-    protected Collection $frontPageCollection;
 
     public function handle(): int
     {

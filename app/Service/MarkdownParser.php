@@ -19,6 +19,7 @@ class MarkdownParser
 
     public string $markdownContent;
 
+    /** @var array<string, mixed> */
     public array $options;
 
     /**
