@@ -23,5 +23,5 @@ return [
                 content_path('pages/test.md'),
             ],
         ],
-    ]
+    ],
 ];

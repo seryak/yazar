@@ -34,6 +34,7 @@ class ContentController extends Controller
     public function showCategoryPage(string $slug, int $pageNumber): View
     {
         $category = Category::where('slug', $slug)->firstOrFail();
+
         return $this->renderCategory($category, $pageNumber);
     }
 
@@ -51,6 +52,7 @@ class ContentController extends Controller
 
         $items = $collection->forPage($pageNumber, $perPage);
         $paginator = new Paginator($pageCount, '/', $pageNumber);
+
         return view('front-page', compact('items', 'paginator'));
     }
 

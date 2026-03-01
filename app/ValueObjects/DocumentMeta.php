@@ -11,7 +11,7 @@ use InvalidArgumentException;
 class DocumentMeta
 {
     /**
-     * @param array<string, mixed> $extra
+     * @param  array<string, mixed>  $extra
      */
     public function __construct(
         public readonly string $viewExtends,

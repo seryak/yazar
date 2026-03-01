@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\PHPStan;
 
@@ -21,7 +23,6 @@ use ShipMonk\PHPStan\DeadCode\Provider\VirtualUsageData;
 
 final class LaravelUsageProvider implements MemberUsageProvider
 {
-
     private bool $enabled;
 
     private const SERVICE_PROVIDER_METHODS = ['register', 'boot'];
@@ -45,7 +46,7 @@ final class LaravelUsageProvider implements MemberUsageProvider
      */
     public function getUsages(Node $node, Scope $scope): array
     {
-        if (!$this->enabled || !$this->isLaravelInstalled()) {
+        if (! $this->enabled || ! $this->isLaravelInstalled()) {
             return [];
         }
 
@@ -66,28 +67,28 @@ final class LaravelUsageProvider implements MemberUsageProvider
      */
     private function getRouteUsages(Node $node, Scope $scope): array
     {
-        if (!$node instanceof StaticCall) {
+        if (! $node instanceof StaticCall) {
             return [];
         }
 
-        if (!$node->class instanceof Name) {
+        if (! $node->class instanceof Name) {
             return [];
         }
 
-        if (!in_array((string) $node->class, self::ROUTE_CLASS_NAMES, true)) {
+        if (! in_array((string) $node->class, self::ROUTE_CLASS_NAMES, true)) {
             return [];
         }
 
-        if (!$node->name instanceof Identifier) {
+        if (! $node->name instanceof Identifier) {
             return [];
         }
 
-        if (!in_array(strtolower($node->name->toString()), self::ROUTE_HTTP_METHODS, true)) {
+        if (! in_array(strtolower($node->name->toString()), self::ROUTE_HTTP_METHODS, true)) {
             return [];
         }
 
         $actionArg = $node->args[1] ?? null;
-        if (!$actionArg instanceof Arg) {
+        if (! $actionArg instanceof Arg) {
             return [];
         }
 
@@ -96,6 +97,7 @@ final class LaravelUsageProvider implements MemberUsageProvider
         // String syntax: 'App\Http\Controllers\Controller@method'
         if ($action instanceof String_ && str_contains($action->value, '@')) {
             [$controllerClass, $controllerMethod] = explode('@', $action->value, 2);
+
             return [
                 new ClassMethodUsage(
                     UsageOrigin::createVirtual($this, VirtualUsageData::withNote('Called via Laravel route')),
@@ -105,22 +107,22 @@ final class LaravelUsageProvider implements MemberUsageProvider
         }
 
         // Array syntax: [Controller::class, 'method']
-        if (!$action instanceof Array_ || count($action->items) !== 2) {
+        if (! $action instanceof Array_ || count($action->items) !== 2) {
             return [];
         }
 
-        $classItem  = $action->items[0]->value ?? null;
+        $classItem = $action->items[0]->value ?? null;
         $methodItem = $action->items[1]->value ?? null;
 
-        if (!$classItem instanceof ClassConstFetch || !$classItem->class instanceof Name) {
+        if (! $classItem instanceof ClassConstFetch || ! $classItem->class instanceof Name) {
             return [];
         }
 
-        if (!$methodItem instanceof String_) {
+        if (! $methodItem instanceof String_) {
             return [];
         }
 
-        $controllerClass  = $scope->resolveName($classItem->class);
+        $controllerClass = $scope->resolveName($classItem->class);
         $controllerMethod = $methodItem->value;
 
         return [
@@ -138,12 +140,12 @@ final class LaravelUsageProvider implements MemberUsageProvider
      */
     private function getArtisanCommandUsages(Node $node, Scope $scope): array
     {
-        if (!$node instanceof ClassMethod || $node->name->toString() !== 'handle') {
+        if (! $node instanceof ClassMethod || $node->name->toString() !== 'handle') {
             return [];
         }
 
         $classReflection = $scope->getClassReflection();
-        if ($classReflection === null || !$classReflection->isSubclassOf('Illuminate\\Console\\Command')) {
+        if ($classReflection === null || ! $classReflection->isSubclassOf('Illuminate\\Console\\Command')) {
             return [];
         }
 
@@ -162,14 +164,14 @@ final class LaravelUsageProvider implements MemberUsageProvider
      */
     private function getServiceProviderUsages(Node $node, Scope $scope): array
     {
-        if (!$node instanceof ClassMethod
-            || !in_array($node->name->toString(), self::SERVICE_PROVIDER_METHODS, true)) {
+        if (! $node instanceof ClassMethod
+            || ! in_array($node->name->toString(), self::SERVICE_PROVIDER_METHODS, true)) {
             return [];
         }
 
         $classReflection = $scope->getClassReflection();
         if ($classReflection === null
-            || !$classReflection->isSubclassOf('Illuminate\\Support\\ServiceProvider')) {
+            || ! $classReflection->isSubclassOf('Illuminate\\Support\\ServiceProvider')) {
             return [];
         }
 
@@ -191,18 +193,18 @@ final class LaravelUsageProvider implements MemberUsageProvider
      */
     private function getEloquentAccessorUsages(Node $node, Scope $scope): array
     {
-        if (!$node instanceof ClassMethod) {
+        if (! $node instanceof ClassMethod) {
             return [];
         }
 
         $name = $node->name->toString();
-        if (!str_starts_with($name, 'get') || !str_ends_with($name, 'Attribute')) {
+        if (! str_starts_with($name, 'get') || ! str_ends_with($name, 'Attribute')) {
             return [];
         }
 
         $classReflection = $scope->getClassReflection();
         if ($classReflection === null
-            || !$classReflection->isSubclassOf('Illuminate\\Database\\Eloquent\\Model')) {
+            || ! $classReflection->isSubclassOf('Illuminate\\Database\\Eloquent\\Model')) {
             return [];
         }
 
@@ -224,5 +226,4 @@ final class LaravelUsageProvider implements MemberUsageProvider
 
         return false;
     }
-
 }
