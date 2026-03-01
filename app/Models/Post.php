@@ -14,7 +14,7 @@ class Post extends Document
         });
 
         static::creating(function (self $document): void {
-            $document->type = DocumentType::Post;
+            $document->type = DocumentType::Post->value;
         });
     }
 }

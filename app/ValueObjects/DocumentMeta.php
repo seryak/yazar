@@ -4,6 +4,10 @@ namespace App\ValueObjects;
 
 use InvalidArgumentException;
 
+/**
+ * @property-read string|null $category
+ * @property-read string|null $description
+ */
 class DocumentMeta
 {
     public function __construct(

@@ -4,9 +4,15 @@ namespace App\Models;
 
 use App\Casts\DocumentMetaCast;
 use App\Enums\DocumentType;
+use App\Service\MarkdownParser;
+use App\ValueObjects\DocumentMeta;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+/**
+ * @property DocumentMeta $meta
+ * @property-read string $html_content
+ */
 class Document extends Model
 {
     protected $table = 'documents';
@@ -39,9 +45,18 @@ class Document extends Model
         ];
     }
 
+    public function getHtmlContentAttribute(): string
+    {
+        $parser = new MarkdownParser;
+        $parser->parse($this->content ?? '');
+
+        return $parser->content;
+    }
+
     public function getPathForStaticPageAttribute(): string
     {
         $path = Str::replace('.md', '', $this->path);
+
         return config('content.use_html_suffix') ? $path.'.html' : $path.'/index.html';
     }
 }

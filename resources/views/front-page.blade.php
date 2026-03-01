@@ -1,3 +1,7 @@
+@php
+    use App\Models\Page;
+@endphp
+
 @extends('layout')
 
 @section('main')
@@ -8,7 +12,7 @@
         </div>
 
         <?php
-        /** @var \App\Models\Yazar\PageEloquent $page */ ?>
+        /** @var Page $page */ ?>
         @foreach($items as $page)
             <div class="flex flex-col mb-4">
                 <p class="m-0">

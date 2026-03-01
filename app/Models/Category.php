@@ -4,14 +4,17 @@ namespace App\Models;
 
 use App\Enums\DocumentType;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Collection;
 
+/**
+ * @property-read Collection<int, Post> $posts
+ */
 class Category extends Document
 {
     public function posts(): HasMany|Category
     {
-        return $this->hasMany(Post::class, 'meta->category','slug');
+        return $this->hasMany(Post::class, 'meta->category', 'slug');
     }
 
     protected static function booted(): void
@@ -21,7 +24,7 @@ class Category extends Document
         });
 
         static::creating(function (self $document): void {
-            $document->type = DocumentType::Category;
+            $document->type = DocumentType::Category->value;
         });
     }
 }

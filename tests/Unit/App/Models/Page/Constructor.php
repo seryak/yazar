@@ -11,11 +11,12 @@ use Tests\TestCase;
 class Constructor extends TestCase
 {
     protected const FILEPATH = 'test-test.md';
+
     protected const VIEWPATH = 'views/test-test.blade.php';
 
-    public function testOk(): void
+    public function test_ok(): void
     {
-        $fileContent = <<<EOT
+        $fileContent = <<<'EOT'
         ---
         view::extends: test-test
         view::section: content
@@ -38,15 +39,15 @@ class Constructor extends TestCase
         $this->assertEquals('<p>olololo</p>'.PHP_EOL, $page->htmlContent);
     }
 
-    public function testWrongFile()
+    public function test_wrong_file()
     {
         $this->expectExceptionMessage('file_get_contents(wrong): Failed to open stream: No such file or directory');
         new PageDocument('wrong');
     }
 
-    public function testWrongView()
+    public function test_wrong_view()
     {
-        $fileContent = <<<EOT
+        $fileContent = <<<'EOT'
         ---
         view::extends: test-test
         view::section: content
@@ -76,7 +77,7 @@ class Constructor extends TestCase
         file_put_contents(resource_path(self::VIEWPATH), $viewString);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         if (file_exists(resource_path(self::VIEWPATH))) {
             unlink(resource_path(self::VIEWPATH));

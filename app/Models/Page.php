@@ -14,7 +14,7 @@ class Page extends Document
         });
 
         static::creating(function (self $document): void {
-            $document->type = DocumentType::Page;
+            $document->type = DocumentType::Page->value;
         });
     }
 }

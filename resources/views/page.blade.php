@@ -1,10 +1,13 @@
+@php
+    use App\Models\Document;
+@endphp
 <?php
-/** @var \App\Models\Document $page */ ?>
+/** @var Document $page */ ?>
 @extends('layout')
 
 @section('main')
     <main role="main" class="flex-auto w-full container max-w-4xl mx-auto py-16 px-6">
-        <h1 class="leading-none mb-2 text-5xl font-bold">{{$page->title}}
+        <h1 class="leading-none mb-2 text-5xl font-bold">{{$page->meta->title}}
             @if(isset($page->category))
                 {{ $page->category->title }}
             @endif</h1>
@@ -12,14 +15,14 @@
 
         @if(isset($page->category))
             <a
-                href="/{{ $page->category->slug }}"
-                title="{{ $page->category->title }}"
-                class="inline-block bg-gray-300 hover:bg-indigo-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 mb-6 px-3 pt-px"
+                    href="/{{ $page->category->slug }}"
+                    title="{{ $page->category->title }}"
+                    class="inline-block bg-gray-300 hover:bg-indigo-200 leading-loose tracking-wide text-gray-800 uppercase text-xs font-semibold rounded mr-4 mb-6 px-3 pt-px"
             >{{ $page->category->title }}</a>
         @endif
 
         <div class="border-b border-indigo-200 mb-10 pb-4">
-            {!! $page->htmlContent !!}
+            {!! $page->html_content !!}
         </div>
 
         <nav class="flex justify-between text-sm md:text-base">
