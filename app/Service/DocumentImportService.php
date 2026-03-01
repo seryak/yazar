@@ -68,7 +68,8 @@ class DocumentImportService
 
     private function importFile(string $filePath): void
     {
-        $content = Storage::disk($this->diskName)->get($filePath);
+        $content = Storage::disk($this->diskName)->get($filePath)
+            ?? throw new \RuntimeException("File not readable: $filePath");
         $parser = new MarkdownParser;
         $parser->parse($content);
 
@@ -86,6 +87,9 @@ class DocumentImportService
     private function isValidFile(string $filePath): bool
     {
         $content = Storage::disk($this->diskName)->get($filePath);
+        if ($content === null) {
+            return false;
+        }
         $parser = new MarkdownParser;
 
         try {
