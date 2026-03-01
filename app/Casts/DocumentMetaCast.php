@@ -34,7 +34,7 @@ class DocumentMetaCast implements CastsAttributes
     public function set($model, string $key, $value, array $attributes): array
     {
         if ($value === null) {
-            return [$key => json_encode([])];
+            return [$key => json_encode([], JSON_THROW_ON_ERROR)];
         }
 
         if ($value instanceof DocumentMeta) {

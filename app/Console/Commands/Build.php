@@ -9,6 +9,7 @@ use App\Models\Post;
 use App\Models\Yazar\Paginator;
 use App\Service\DocumentImportService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Command\Command as CommandAlias;
@@ -19,8 +20,8 @@ class Build extends Command
 
     protected $description = 'Generate static build';
 
-    /** @var \Illuminate\Support\Collection<int, Category> */
-    protected \Illuminate\Support\Collection $categories;
+    /** @var Collection<int, Category> */
+    protected Collection $categories;
 
     public function handle(): int
     {
@@ -41,7 +42,9 @@ class Build extends Command
     protected function exportDocuments(): void
     {
         foreach (Post::all() as $post) {
-            $htmlContent = view($post->meta->viewExtends, ['page' => $post])->render();
+            /** @var view-string $viewName */
+            $viewName = $post->meta->viewExtends;
+            $htmlContent = view($viewName, ['page' => $post])->render();
             Storage::disk('static_output')->put($post->path_for_static_page, $htmlContent);
         }
     }
@@ -59,7 +62,9 @@ class Build extends Command
                 $pages = $items->forPage($i, $perPage);
 
                 $paginator = new Paginator($pageCount, $category->slug, $i);
-                $fileHtml = view($category->meta->viewExtends,
+                /** @var view-string $viewName */
+                $viewName = $category->meta->viewExtends;
+                $fileHtml = view($viewName,
                     [
                         'category' => $category,
                         'pages' => $pages,
