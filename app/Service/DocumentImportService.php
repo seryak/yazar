@@ -125,6 +125,10 @@ class DocumentImportService
             }
         }
 
+        if (! view()->exists($meta['view::extends'])) {
+            return false;
+        }
+
         return true;
     }
 }
