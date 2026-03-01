@@ -24,19 +24,17 @@
             </div>
         @endforeach
 
-        @if(isset($paginator))
-            <div class="flex">
-                @if(isset($paginator->prevLink))
-                    <a class="pr-8" href="{{$paginator->prevLink}}"> << </a>
-                @endif
-                @foreach($paginator->links as $key => $link)
-                    <a class="pr-8 vottut" href="{{$link}}"> {{$key + 1}} </a>
-                @endforeach
+        <div class="flex">
+            @if(isset($paginator->prevLink))
+                <a class="pr-8" href="{{$paginator->prevLink}}"> << </a>
+            @endif
+            @foreach($paginator->links as $key => $link)
+                <a class="pr-8 vottut" href="{{$link}}"> {{$key + 1}} </a>
+            @endforeach
 
-                @if(isset($paginator->nextLink))
-                    <a href="{{$paginator->nextLink}}"> >> </a>
-                @endif
-            </div>
-        @endif
+            @if(isset($paginator->nextLink))
+                <a href="{{$paginator->nextLink}}"> >> </a>
+            @endif
+        </div>
     </main>
 @endsection

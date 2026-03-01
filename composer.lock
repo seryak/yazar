@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "329c8c9dc89b36ba82c2bcc37ec2214c",
+    "content-hash": "77fcbe0f2594415135cf56eec4082ad0",
     "packages": [
         {
             "name": "brick/math",
@@ -7661,6 +7661,82 @@
             "time": "2026-02-06T12:16:02+00:00"
         },
         {
+            "name": "livewire/livewire",
+            "version": "v4.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/livewire/livewire.git",
+                "reference": "93e972fa42c1b34fff1550093ab94f778d81ea5a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/93e972fa42c1b34fff1550093ab94f778d81ea5a",
+                "reference": "93e972fa42c1b34fff1550093ab94f778d81ea5a",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/database": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/routing": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/validation": "^10.0|^11.0|^12.0|^13.0",
+                "laravel/prompts": "^0.1.24|^0.2|^0.3",
+                "league/mime-type-detection": "^1.9",
+                "php": "^8.1",
+                "symfony/console": "^6.0|^7.0|^8.0",
+                "symfony/http-kernel": "^6.2|^7.0|^8.0"
+            },
+            "require-dev": {
+                "calebporzio/sushi": "^2.1",
+                "laravel/framework": "^10.15.0|^11.0|^12.0|^13.0",
+                "mockery/mockery": "^1.3.1",
+                "orchestra/testbench": "^8.21.0|^9.0|^10.0|^11.0",
+                "orchestra/testbench-dusk": "^8.24|^9.1|^10.0|^11.0",
+                "phpunit/phpunit": "^10.4|^11.5|^12.5",
+                "psy/psysh": "^0.11.22|^0.12"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Livewire": "Livewire\\Livewire"
+                    },
+                    "providers": [
+                        "Livewire\\LivewireServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Livewire\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Caleb Porzio",
+                    "email": "calebporzio@gmail.com"
+                }
+            ],
+            "description": "A front-end framework for Laravel.",
+            "support": {
+                "issues": "https://github.com/livewire/livewire/issues",
+                "source": "https://github.com/livewire/livewire/tree/v4.2.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/livewire",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-02-28T00:01:19+00:00"
+        },
+        {
             "name": "mockery/mockery",
             "version": "1.6.12",
             "source": {
@@ -10010,6 +10086,76 @@
                 }
             ],
             "time": "2025-11-17T20:03:58+00:00"
+        },
+        {
+            "name": "tomasvotruba/bladestan",
+            "version": "0.11.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bladestan/bladestan.git",
+                "reference": "7abb7a358bea373064c5e5d001df2157134ff7cb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bladestan/bladestan/zipball/7abb7a358bea373064c5e5d001df2157134ff7cb",
+                "reference": "7abb7a358bea373064c5e5d001df2157134ff7cb",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^11.15|^12.0",
+                "illuminate/filesystem": "^11.15|^12.0",
+                "illuminate/mail": "^11.15|^12.0",
+                "illuminate/notifications": "^11.15|^12.0",
+                "illuminate/view": "^11.15|^12.0",
+                "larastan/larastan": "^3.0",
+                "livewire/livewire": "^3.3.5|^4.0",
+                "php": "^8.2",
+                "phpstan/phpstan": "^2.0.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^9.9|^10.0",
+                "phpunit/phpunit": "^11.3.6",
+                "rector/rector": "^2.0",
+                "symplify/easy-coding-standard": "^12.1.1",
+                "tomasvotruba/class-leak": "^2.0"
+            },
+            "type": "phpstan-extension",
+            "extra": {
+                "phpstan": {
+                    "includes": [
+                        "config/extension.neon"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Bladestan\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHPStan rule for static analysis of Blade templates",
+            "keywords": [
+                "phpstan-extension",
+                "static analysis"
+            ],
+            "support": {
+                "issues": "https://github.com/bladestan/bladestan/issues",
+                "source": "https://github.com/bladestan/bladestan/tree/0.11.4"
+            },
+            "funding": [
+                {
+                    "url": "https://www.paypal.me/rectorphp",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/tomasvotruba",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-01-16T18:16:59+00:00"
         }
     ],
     "aliases": [],

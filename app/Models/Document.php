@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 /**
  * @property DocumentMeta $meta
  * @property-read string $html_content
+ * @property \Carbon\Carbon $published_at
  */
 class Document extends Model
 {
