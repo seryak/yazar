@@ -1,0 +1,9 @@
+@extends('layout')
+
+@section('main')
+    <h1>{{ $category->meta->title }}</h1>
+
+    @foreach($pages as $page)
+        <p><a href="{{ $page->slug }}">{{ $page->meta->title }}</a></p>
+    @endforeach
+@endsection

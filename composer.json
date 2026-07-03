@@ -1,42 +1,29 @@
 {
-    "name": "laravel/laravel",
-    "type": "project",
-    "description": "The Laravel Framework.",
-    "keywords": ["framework", "laravel"],
+    "name": "seryak/yazar",
+    "type": "library",
+    "description": "Static site generator engine for Laravel: Markdown content imported into Eloquent documents and rendered through Blade.",
+    "keywords": ["framework", "laravel", "static-site-generator", "markdown"],
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "calebporzio/sushi": "^2.4",
-        "graham-campbell/markdown": "^16.0",
-        "guzzlehttp/guzzle": "^7.2",
-        "laravel/framework": "^12.0",
-        "laravel/sanctum": "^4.3",
-        "laravel/tinker": "^2.8",
-        "spatie/laravel-ray": "^1.32",
-        "staudenmeir/eloquent-json-relations": "^1.14",
-        "webmozart/assert": "^1.11"
+        "illuminate/console": "^12.0",
+        "illuminate/contracts": "^12.0",
+        "illuminate/database": "^12.0",
+        "illuminate/support": "^12.0",
+        "graham-campbell/markdown": "^16.0"
     },
     "require-dev": {
-        "fakerphp/faker": "^1.9.1",
-        "larastan/larastan": "^3.9",
-        "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.0",
-        "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.8",
-        "phpunit/phpunit": "^11.5.15",
-        "shipmonk/dead-code-detector": "^0.14.1",
-        "spatie/laravel-ignition": "^2.0",
-        "tomasvotruba/bladestan": "^0.11.4"
+        "phpunit/phpunit": "^11.5.15"
     },
     "autoload": {
         "files": [
-            "app/helpers.php"
+            "src/helpers.php"
         ],
         "psr-4": {
-            "App\\": "app/",
-            "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Yazar\\": "src/"
         }
     },
     "autoload-dev": {
@@ -44,33 +31,15 @@
             "Tests\\": "tests/"
         }
     },
-    "scripts": {
-        "post-autoload-dump": [
-            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi"
-        ],
-        "post-update-cmd": [
-            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
-        ],
-        "post-root-package-install": [
-            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
-        ],
-        "post-create-project-cmd": [
-            "@php artisan key:generate --ansi"
-        ]
-    },
     "extra": {
         "laravel": {
-            "dont-discover": []
+            "providers": [
+                "Yazar\\YazarServiceProvider"
+            ]
         }
     },
     "config": {
-        "optimize-autoloader": true,
-        "preferred-install": "dist",
-        "sort-packages": true,
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
+        "sort-packages": true
     },
     "minimum-stability": "stable",
     "prefer-stable": true

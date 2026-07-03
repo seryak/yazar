@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Enums\DocumentType;
-use App\Models\Document;
-use App\Service\DocumentImportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
+use Yazar\Documents\DocumentImportService;
+use Yazar\Enums\DocumentType;
+use Yazar\Models\Document;
 
 class DynamicContentRoutesTest extends TestCase
 {

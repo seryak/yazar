@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\ContentController;
 use Illuminate\Support\Facades\Route;
+use Yazar\Http\Controllers\ContentController;
 
 Route::get('/', [ContentController::class, 'renderMainPage'])->name('front-page');
 Route::get('/{pageNumber}', [ContentController::class, 'renderMainPage'])

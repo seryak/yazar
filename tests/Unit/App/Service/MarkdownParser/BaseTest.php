@@ -2,11 +2,11 @@
 
 namespace Tests\Unit\App\Service\MarkdownParser;
 
-use App\Service\MarkdownParser;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\FrontMatter\FrontMatterExtension;
 use League\CommonMark\MarkdownConverter;
 use Tests\TestCase;
+use Yazar\Markdown\MarkdownParser;
 
 class BaseTest extends TestCase
 {
