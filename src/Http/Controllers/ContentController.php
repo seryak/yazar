@@ -19,7 +19,7 @@ class ContentController extends Controller
                 continue;
             }
 
-            if ($contentType['type'] === 'category') {
+            if ($contentType['type'] === Category::documentType()) {
                 if (! $document instanceof Category) {
                     continue;
                 }
