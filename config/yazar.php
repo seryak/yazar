@@ -1,6 +1,5 @@
 <?php
 
-use Yazar\Enums\DocumentType;
 use Yazar\Models\Category;
 use Yazar\Models\Page;
 use Yazar\Models\Post;
@@ -18,9 +17,9 @@ return [
     'storage_url' => env('STORAGE_URL', ''),
 
     'content_types' => [
-        'posts' => ['type' => DocumentType::Post, 'model' => Post::class],
-        'pages' => ['type' => DocumentType::Page, 'model' => Page::class],
-        'categories' => ['type' => DocumentType::Category, 'model' => Category::class],
+        'posts' => ['type' => 'post', 'model' => Post::class],
+        'pages' => ['type' => 'page', 'model' => Page::class],
+        'categories' => ['type' => 'category', 'model' => Category::class],
     ],
 
     // Ключи здесь ДОЛЖНЫ совпадать с ключами content_types — DocumentImportService

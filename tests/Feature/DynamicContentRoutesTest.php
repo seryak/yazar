@@ -6,7 +6,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use Yazar\Documents\DocumentImportService;
-use Yazar\Enums\DocumentType;
 use Yazar\Models\Document;
 
 class DynamicContentRoutesTest extends TestCase
@@ -24,7 +23,7 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# hello',
-            'type' => DocumentType::Post,
+            'type' => 'post',
             'published_at' => now(),
         ]);
 
@@ -46,7 +45,7 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# test',
-            'type' => DocumentType::Page,
+            'type' => 'page',
             'published_at' => now(),
         ]);
 
@@ -68,7 +67,7 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# cat',
-            'type' => DocumentType::Category,
+            'type' => 'category',
             'published_at' => now()->subDays(3),
         ]);
 
@@ -82,7 +81,7 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220507,
             ],
             'content' => '# post one',
-            'type' => DocumentType::Post,
+            'type' => 'post',
             'published_at' => now()->subDays(2),
         ]);
 
@@ -96,7 +95,7 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220508,
             ],
             'content' => '# post two',
-            'type' => DocumentType::Post,
+            'type' => 'post',
             'published_at' => now()->subDay(),
         ]);
 
@@ -123,7 +122,7 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# single',
-            'type' => DocumentType::Category,
+            'type' => 'category',
             'published_at' => now(),
         ]);
 
@@ -141,7 +140,7 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# first',
-            'type' => DocumentType::Post,
+            'type' => 'post',
             'published_at' => now(),
         ]);
 
@@ -154,7 +153,7 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220507,
             ],
             'content' => '# second',
-            'type' => DocumentType::Post,
+            'type' => 'post',
             'published_at' => now()->subDay(),
         ]);
 
@@ -167,7 +166,7 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220508,
             ],
             'content' => '# numeric',
-            'type' => DocumentType::Page,
+            'type' => 'page',
             'published_at' => now()->subDays(2),
         ]);
 
@@ -216,7 +215,7 @@ class DynamicContentRoutesTest extends TestCase
         # contract
         EOT);
 
-        $service = new DocumentImportService('documents', DocumentType::Page);
+        $service = new DocumentImportService('documents', 'page');
         $result = $service->import();
 
         $this->assertSame(1, $result['total']);
@@ -227,7 +226,7 @@ class DynamicContentRoutesTest extends TestCase
 
         $this->assertNotNull($document);
         $this->assertSame('contract.md', $document->path);
-        $this->assertSame(DocumentType::Page, $document->type);
+        $this->assertSame('page', $document->type);
     }
 
     public function test_multi_segment_slug_is_resolved_for_page_route(): void
@@ -241,7 +240,7 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# nested page',
-            'type' => DocumentType::Page,
+            'type' => 'page',
             'published_at' => now(),
         ]);
 

@@ -55,7 +55,7 @@ php artisan build           # generates the static site
 All engine configuration lives in the published `config/yazar.php`:
 
 - `content_path` — root directory for Markdown content.
-- `content_types` — maps a storage disk (`posts`/`pages`/`categories`) to a `DocumentType` and the Eloquent model class used for it; override the `model` value to use your own subclass.
+- `content_types` — maps a storage disk (`posts`/`pages`/`categories`) to a document type string and the Eloquent model class used for it; override the `model` value to use your own subclass.
 - `disks` — the `Storage` disk definitions registered at runtime for each content type plus `static_output`.
 - `deploy_target` — optional directory the `build` command copies its static output into.
 - `front_page_view` — the Blade view name used for the front page.

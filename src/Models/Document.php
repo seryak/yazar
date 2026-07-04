@@ -2,10 +2,11 @@
 
 namespace Yazar\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use Yazar\Casts\DocumentMetaCast;
-use Yazar\Enums\DocumentType;
 use Yazar\Markdown\MarkdownParser;
 use Yazar\ValueObjects\DocumentMeta;
 
@@ -16,7 +17,7 @@ use Yazar\ValueObjects\DocumentMeta;
  * @property string $type
  * @property DocumentMeta $meta
  * @property-read string $html_content
- * @property \Carbon\Carbon $published_at
+ * @property Carbon $published_at
  */
 class Document extends Model
 {
@@ -45,9 +46,19 @@ class Document extends Model
     {
         return [
             'meta' => DocumentMetaCast::class,
-            'type' => DocumentType::class,
             'published_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $document): void {
+            $validTypes = array_column(config('yazar.content_types', []), 'type');
+
+            if (! in_array($document->type, $validTypes, true)) {
+                throw new InvalidArgumentException("Invalid document type '{$document->type}'.");
+            }
+        });
     }
 
     public function getHtmlContentAttribute(): string

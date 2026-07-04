@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Yazar\Documents\DocumentImportService;
-use Yazar\Enums\DocumentType;
 use Yazar\Models\Category;
 use Yazar\Models\Document;
 use Yazar\Support\Paginator;
@@ -34,7 +33,7 @@ class BuildCommand extends Command
 
     protected function exportDocuments(): void
     {
-        $postModel = DocumentType::Post->modelClass();
+        $postModel = config('yazar.content_types.posts.model');
 
         foreach ($postModel::all() as $post) {
             /** @var view-string $viewName */
@@ -46,7 +45,7 @@ class BuildCommand extends Command
 
     protected function exportCategories(): void
     {
-        $categoryModel = DocumentType::Category->modelClass();
+        $categoryModel = config('yazar.content_types.categories.model');
         $perPage = max((int) config('yazar.pagination_per_page', 1), 1);
 
         /** @var Category $category */
@@ -76,7 +75,7 @@ class BuildCommand extends Command
 
     protected function buildFrontPage(): void
     {
-        $postModel = DocumentType::Post->modelClass();
+        $postModel = config('yazar.content_types.posts.model');
         $perPage = max((int) config('yazar.pagination_per_page', 1), 1);
         $collection = $postModel::orderBy('published_at', 'desc')->get();
         $pageCount = max((int) ceil($collection->count() / $perPage), 1);

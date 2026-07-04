@@ -5,7 +5,6 @@ namespace Yazar\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Yazar\Enums\DocumentType;
 
 /**
  * @property-read Collection<int, Post> $posts
@@ -20,12 +19,14 @@ class Category extends Document
 
     protected static function booted(): void
     {
+        parent::booted();
+
         static::addGlobalScope('category_type', function (Builder $builder): void {
-            $builder->where('type', DocumentType::Category);
+            $builder->where('type', 'category');
         });
 
         static::creating(function (self $document): void {
-            $document->type = DocumentType::Category->value;
+            $document->type = 'category';
         });
     }
 }

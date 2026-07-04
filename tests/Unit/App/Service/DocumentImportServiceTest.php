@@ -6,7 +6,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use Yazar\Documents\DocumentImportService;
-use Yazar\Enums\DocumentType;
 use Yazar\Models\Document;
 
 class DocumentImportServiceTest extends TestCase
@@ -34,7 +33,7 @@ class DocumentImportServiceTest extends TestCase
         # invalid
         EOT);
 
-        $service = new DocumentImportService('documents', DocumentType::Page);
+        $service = new DocumentImportService('documents', 'page');
         $result = $service->import();
 
         $this->assertSame(2, $result['total']);
@@ -58,7 +57,7 @@ class DocumentImportServiceTest extends TestCase
         # first
         EOT);
 
-        $service = new DocumentImportService('documents', DocumentType::Page);
+        $service = new DocumentImportService('documents', 'page');
         $first = $service->import();
 
         $this->assertSame(1, $first['imported']);

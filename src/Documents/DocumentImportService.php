@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use League\CommonMark\Exception\CommonMarkException;
-use Yazar\Enums\DocumentType;
 use Yazar\Markdown\MarkdownParser;
 use Yazar\Models\Document;
 
@@ -23,7 +22,7 @@ class DocumentImportService
 
     public function __construct(
         private readonly string $diskName,
-        private readonly DocumentType $type,
+        private readonly string $type,
     ) {}
 
     /**
@@ -71,7 +70,7 @@ class DocumentImportService
         $modelClass = config("yazar.content_types.{$this->diskName}.model", Document::class);
 
         $modelClass::updateOrCreate(
-            ['path' => $filePath, 'type' => $this->type->value],
+            ['path' => $filePath, 'type' => $this->type],
             [
                 'meta' => $parser->options,
                 'slug' => Str::replace('.md', '', $filePath),

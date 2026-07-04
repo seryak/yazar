@@ -8,6 +8,7 @@ use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\FrontMatter\FrontMatterExtension;
 use League\CommonMark\Extension\FrontMatter\FrontMatterParserInterface;
 use League\CommonMark\MarkdownConverter;
+use Tests\Unit\App\Service\MarkdownParser\BaseTest;
 
 class MarkdownParser
 {
@@ -23,7 +24,7 @@ class MarkdownParser
     public array $options;
 
     /**
-     * @test {@see \Tests\Unit\App\Service\MarkdownParser\BaseTest::testConstructor()}
+     * @test {@see BaseTest::testConstructor()}
      */
     public function __construct()
     {
@@ -39,7 +40,7 @@ class MarkdownParser
     }
 
     /**
-     * @test {@see \Tests\Unit\App\Service\MarkdownParser\BaseTest::testParse()}
+     * @test {@see BaseTest::testParse()}
      *
      * @throws CommonMarkException
      */

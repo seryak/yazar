@@ -3,7 +3,6 @@
 namespace Yazar\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
-use Yazar\Enums\DocumentType;
 use Yazar\Models\Category;
 use Yazar\Models\Document;
 use Yazar\Support\Paginator;
@@ -20,7 +19,7 @@ class ContentController extends Controller
                 continue;
             }
 
-            if ($contentType['type'] === DocumentType::Category) {
+            if ($contentType['type'] === 'category') {
                 if (! $document instanceof Category) {
                     continue;
                 }
@@ -36,7 +35,7 @@ class ContentController extends Controller
 
     public function showCategoryPage(string $slug, int $pageNumber): View
     {
-        $categoryModel = DocumentType::Category->modelClass();
+        $categoryModel = config('yazar.content_types.categories.model');
         $category = $categoryModel::where('slug', $slug)->firstOrFail();
 
         if (! $category instanceof Category) {
@@ -48,7 +47,7 @@ class ContentController extends Controller
 
     public function renderMainPage(int $pageNumber = 1): View
     {
-        $postModel = DocumentType::Post->modelClass();
+        $postModel = config('yazar.content_types.posts.model');
         $perPage = max((int) config('yazar.pagination_per_page', 1), 1);
         $collection = $postModel::orderBy('published_at', 'desc')->get();
 
@@ -82,7 +81,7 @@ class ContentController extends Controller
         $page->setAttribute('nextPage', $nextPage);
 
         $categorySlug = $page->meta->category;
-        $categoryModel = DocumentType::Category->modelClass();
+        $categoryModel = config('yazar.content_types.categories.model');
         $category = is_scalar($categorySlug)
             ? $categoryModel::where('slug', (string) $categorySlug)->first()
             : null;
