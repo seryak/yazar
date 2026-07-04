@@ -126,7 +126,7 @@ class DocumentImportService
             }
         }
 
-        if (! view()->exists($meta['view::extends'])) {
+        if (! view()->exists((string) $meta['view::extends'])) {
             return false;
         }
 

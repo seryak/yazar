@@ -10,6 +10,10 @@ use Yazar\Markdown\MarkdownParser;
 use Yazar\ValueObjects\DocumentMeta;
 
 /**
+ * @property string $path
+ * @property string $slug
+ * @property string $content
+ * @property string $type
  * @property DocumentMeta $meta
  * @property-read string $html_content
  * @property \Carbon\Carbon $published_at
