@@ -5,8 +5,6 @@ namespace Yazar;
 use Illuminate\Support\ServiceProvider;
 use Yazar\Console\Commands\BuildCommand;
 use Yazar\Console\Commands\InstallCommand;
-use Yazar\Documents\DocumentImportService;
-use Yazar\Models\Document;
 
 class YazarServiceProvider extends ServiceProvider
 {
@@ -23,10 +21,6 @@ class YazarServiceProvider extends ServiceProvider
 
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
-
-        if (! $this->app->runningInConsole() && Document::count() === 0) {
-            DocumentImportService::importAllConfiguredDisks();
-        }
 
         if ($this->app->runningInConsole()) {
             $this->publishes([

@@ -2,17 +2,20 @@
 
 use Illuminate\Support\Facades\Route;
 use Yazar\Http\Controllers\ContentController;
+use Yazar\Http\Middleware\ImportEmptyContent;
 
-Route::get('/', [ContentController::class, 'renderMainPage'])->name('front-page');
-Route::get('/{pageNumber}', [ContentController::class, 'renderMainPage'])
-    ->whereNumber('pageNumber')
-    ->name('front-page.pagination');
+Route::middleware(ImportEmptyContent::class)->group(function () {
+    Route::get('/', [ContentController::class, 'renderMainPage'])->name('front-page');
+    Route::get('/{pageNumber}', [ContentController::class, 'renderMainPage'])
+        ->whereNumber('pageNumber')
+        ->name('front-page.pagination');
 
-Route::get('/{slug}/{pageNumber}', [ContentController::class, 'showCategoryPage'])
-    ->where('slug', '.+')
-    ->whereNumber('pageNumber')
-    ->name('content.category.pagination');
+    Route::get('/{slug}/{pageNumber}', [ContentController::class, 'showCategoryPage'])
+        ->where('slug', '.+')
+        ->whereNumber('pageNumber')
+        ->name('content.category.pagination');
 
-Route::get('/{slug}', [ContentController::class, 'show'])
-    ->where('slug', '.+')
-    ->name('content.show');
+    Route::get('/{slug}', [ContentController::class, 'show'])
+        ->where('slug', '.+')
+        ->name('content.show');
+});
