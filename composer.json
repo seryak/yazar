@@ -13,9 +13,11 @@
         "graham-campbell/markdown": "^16.0"
     },
     "require-dev": {
+        "laravel/framework": "^12.55",
         "laravel/pint": "^1.0",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.8",
+        "orchestra/testbench-core": "^10.0",
         "phpunit/phpunit": "^11.5.15"
     },
     "autoload": {
