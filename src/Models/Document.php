@@ -10,6 +10,7 @@ use Yazar\Casts\DocumentMetaCast;
 use Yazar\Contracts\Documentable;
 use Yazar\Markdown\MarkdownParser;
 use Yazar\ValueObjects\DocumentMeta;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @property string $path
@@ -53,31 +54,44 @@ class Document extends Model
 
     protected static function booted(): void
     {
-        // Type validation runs on `creating`/`updating`, not `saving` — `saving` fires
-        // before `creating`, so a subclass's own `creating()` hook (which fills in `type`
-        // for typed models like Post/Category/Page) would not have run yet.
+        // Filter through the model instance (not self::/static::documentType()
+        // directly) so a query on the bare Document class — which isn't Documentable —
+        // skips the filter instead of fatal-erroring on a missing method. This lets
+        // cross-type operations like Document::count()/truncate() keep working.
+        static::addGlobalScope('document_type', function (Builder $builder): void {
+            $model = $builder->getModel();
+
+            if ($model instanceof Documentable) {
+                $builder->where('type', $model::documentType());
+            }
+        });
+
         static::creating(function (self $document): void {
-            self::validateType($document);
+            self::validateAndNormalizeType($document);
         });
 
         static::updating(function (self $document): void {
-            self::validateType($document);
+            self::validateAndNormalizeType($document);
         });
     }
 
-    private static function validateType(self $document): void
+    private static function validateAndNormalizeType(self $document): void
     {
-        $validTypes = array_column(config('yazar.content_types', []), 'type');
-
-        if (! in_array($document->type, $validTypes, true)) {
-            throw new InvalidArgumentException("Invalid document type '{$document->type}'.");
-        }
-
-        if ($document instanceof Documentable && $document->type !== $document::documentType()) {
+        if (! $document instanceof Documentable) {
             throw new InvalidArgumentException(
-                "Document type '{$document->type}' does not match ".$document::class." (expected '{$document::documentType()}')."
+                'Cannot create or update the base Document model directly; use a concrete subclass (e.g. Post, Page, Category) instead.'
             );
         }
+
+        $explicitType = $document->getAttributes()['type'] ?? null;
+
+        if ($explicitType !== null && $explicitType !== $document::documentType()) {
+            throw new InvalidArgumentException(
+                "Document type '{$explicitType}' does not match ".$document::class." (expected '{$document::documentType()}')."
+            );
+        }
+
+        $document->type = $document::documentType();
     }
 
     public function getHtmlContentAttribute(): string

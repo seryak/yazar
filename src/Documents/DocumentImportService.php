@@ -67,7 +67,7 @@ class DocumentImportService
         $parser = new MarkdownParser;
         $parser->parse($content);
 
-        $modelClass = config("yazar.content_types.{$this->diskName}.model", Document::class);
+        $modelClass = $this->resolveModelClass();
 
         $modelClass::updateOrCreate(
             ['path' => $filePath, 'type' => $this->type],
@@ -78,6 +78,20 @@ class DocumentImportService
                 'published_at' => $parser->options['created_at'],
             ]
         );
+    }
+
+    /**
+     * @return class-string<Document>
+     */
+    private function resolveModelClass(): string
+    {
+        foreach (config('yazar.content_types', []) as $contentType) {
+            if ($contentType['type'] === $this->type) {
+                return $contentType['model'];
+            }
+        }
+
+        throw new \RuntimeException("No model configured for content type '{$this->type}'.");
     }
 
     private function isValidFile(string $filePath): bool

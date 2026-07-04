@@ -6,7 +6,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use Yazar\Documents\DocumentImportService;
+use Yazar\Models\Category;
 use Yazar\Models\Document;
+use Yazar\Models\Page;
+use Yazar\Models\Post;
 
 class DynamicContentRoutesTest extends TestCase
 {
@@ -14,7 +17,7 @@ class DynamicContentRoutesTest extends TestCase
 
     public function test_front_page_renders_imported_posts(): void
     {
-        Document::create([
+        Post::create([
             'path' => 'hello.md',
             'slug' => 'hello',
             'meta' => [
@@ -23,7 +26,6 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# hello',
-            'type' => 'post',
             'published_at' => now(),
         ]);
 
@@ -36,7 +38,7 @@ class DynamicContentRoutesTest extends TestCase
 
     public function test_document_slug_route_renders_page_or_post_view(): void
     {
-        Document::create([
+        Page::create([
             'path' => 'test.md',
             'slug' => 'test',
             'meta' => [
@@ -45,7 +47,6 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# test',
-            'type' => 'page',
             'published_at' => now(),
         ]);
 
@@ -57,7 +58,7 @@ class DynamicContentRoutesTest extends TestCase
 
     public function test_category_route_renders_related_posts_with_pagination(): void
     {
-        Document::create([
+        Category::create([
             'path' => 'laravel.md',
             'slug' => 'laravel',
             'meta' => [
@@ -67,11 +68,10 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# cat',
-            'type' => 'category',
             'published_at' => now()->subDays(3),
         ]);
 
-        Document::create([
+        Post::create([
             'path' => 'post-one.md',
             'slug' => 'post-one',
             'meta' => [
@@ -81,11 +81,10 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220507,
             ],
             'content' => '# post one',
-            'type' => 'post',
             'published_at' => now()->subDays(2),
         ]);
 
-        Document::create([
+        Post::create([
             'path' => 'post-two.md',
             'slug' => 'post-two',
             'meta' => [
@@ -95,7 +94,6 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220508,
             ],
             'content' => '# post two',
-            'type' => 'post',
             'published_at' => now()->subDay(),
         ]);
 
@@ -113,7 +111,7 @@ class DynamicContentRoutesTest extends TestCase
     {
         $this->get('/missing')->assertStatus(404);
 
-        Document::create([
+        Category::create([
             'path' => 'single.md',
             'slug' => 'single',
             'meta' => [
@@ -122,7 +120,6 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# single',
-            'type' => 'category',
             'published_at' => now(),
         ]);
 
@@ -131,7 +128,7 @@ class DynamicContentRoutesTest extends TestCase
 
     public function test_numeric_route_uses_front_page_pagination_priority_over_slug(): void
     {
-        Document::create([
+        Post::create([
             'path' => 'first.md',
             'slug' => 'first',
             'meta' => [
@@ -140,11 +137,10 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# first',
-            'type' => 'post',
             'published_at' => now(),
         ]);
 
-        Document::create([
+        Post::create([
             'path' => 'second.md',
             'slug' => 'second',
             'meta' => [
@@ -153,11 +149,10 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220507,
             ],
             'content' => '# second',
-            'type' => 'post',
             'published_at' => now()->subDay(),
         ]);
 
-        Document::create([
+        Page::create([
             'path' => 'numeric-page.md',
             'slug' => '2',
             'meta' => [
@@ -166,7 +161,6 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220508,
             ],
             'content' => '# numeric',
-            'type' => 'page',
             'published_at' => now()->subDays(2),
         ]);
 
@@ -231,7 +225,7 @@ class DynamicContentRoutesTest extends TestCase
 
     public function test_multi_segment_slug_is_resolved_for_page_route(): void
     {
-        Document::create([
+        Page::create([
             'path' => 'tools/jetbrains/test2.md',
             'slug' => 'tools/jetbrains/test2',
             'meta' => [
@@ -240,7 +234,6 @@ class DynamicContentRoutesTest extends TestCase
                 'created_at' => 20220506,
             ],
             'content' => '# nested page',
-            'type' => 'page',
             'published_at' => now(),
         ]);
 
