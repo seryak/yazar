@@ -174,11 +174,9 @@ class DynamicContentRoutesTest extends TestCase
 
     public function test_empty_storage_is_imported_automatically_for_front_page(): void
     {
-        Storage::fake('posts');
-        Storage::fake('pages');
-        Storage::fake('categories');
+        Storage::fake('content');
 
-        Storage::disk('posts')->put('autoload.md', <<<'EOT'
+        Storage::disk('content')->put('posts/autoload.md', <<<'EOT'
         ---
         view::extends: page
         title: Autoload post
@@ -198,9 +196,9 @@ class DynamicContentRoutesTest extends TestCase
 
     public function test_import_service_contract_stays_valid_for_dynamic_and_static_modes(): void
     {
-        Storage::fake('documents');
+        Storage::fake('content');
 
-        Storage::disk('documents')->put('contract.md', <<<'EOT'
+        Storage::disk('content')->put('pages/contract.md', <<<'EOT'
         ---
         view::extends: page
         title: Contract title
@@ -209,7 +207,7 @@ class DynamicContentRoutesTest extends TestCase
         # contract
         EOT);
 
-        $service = new DocumentImportService('documents', 'page');
+        $service = new DocumentImportService(Page::class);
         $result = $service->import();
 
         $this->assertSame(1, $result['total']);

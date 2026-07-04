@@ -11,15 +11,14 @@ class ContentController extends Controller
 {
     public function show(string $slug): View
     {
-        foreach (config('yazar.content_types', []) as $contentType) {
-            $modelClass = $contentType['model'];
+        foreach (config('yazar.content_types', []) as $modelClass) {
             $document = $modelClass::where('slug', $slug)->first();
 
             if ($document === null) {
                 continue;
             }
 
-            if ($contentType['type'] === Category::documentType()) {
+            if ($modelClass::documentType() === Category::documentType()) {
                 if (! $document instanceof Category) {
                     continue;
                 }
@@ -35,7 +34,7 @@ class ContentController extends Controller
 
     public function showCategoryPage(string $slug, int $pageNumber): View
     {
-        $categoryModel = config('yazar.content_types.categories.model');
+        $categoryModel = config('yazar.content_types.categories');
         $category = $categoryModel::where('slug', $slug)->firstOrFail();
 
         if (! $category instanceof Category) {
@@ -47,7 +46,7 @@ class ContentController extends Controller
 
     public function renderMainPage(int $pageNumber = 1): View
     {
-        $postModel = config('yazar.content_types.posts.model');
+        $postModel = config('yazar.content_types.posts');
         $perPage = max((int) config('yazar.pagination_per_page', 1), 1);
         $collection = $postModel::orderBy('published_at', 'desc')->get();
 
@@ -81,7 +80,7 @@ class ContentController extends Controller
         $page->setAttribute('nextPage', $nextPage);
 
         $categorySlug = $page->meta->category;
-        $categoryModel = config('yazar.content_types.categories.model');
+        $categoryModel = config('yazar.content_types.categories');
         $category = is_scalar($categorySlug)
             ? $categoryModel::where('slug', (string) $categorySlug)->first()
             : null;

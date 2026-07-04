@@ -6,11 +6,14 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use League\CommonMark\Exception\CommonMarkException;
+use Yazar\Contracts\Documentable;
 use Yazar\Markdown\MarkdownParser;
 use Yazar\Models\Document;
 
 class DocumentImportService
 {
+    private const DISK = 'content';
+
     /**
      * @var list<string>
      */
@@ -20,9 +23,11 @@ class DocumentImportService
         'created_at',
     ];
 
+    /**
+     * @param  class-string<Document&Documentable>  $modelClass
+     */
     public function __construct(
-        private readonly string $diskName,
-        private readonly string $type,
+        private readonly string $modelClass,
     ) {}
 
     /**
@@ -30,14 +35,14 @@ class DocumentImportService
      */
     public function import(): array
     {
-        $files = Storage::disk($this->diskName)->allFiles();
+        $files = Storage::disk(self::DISK)->allFiles($this->modelClass::documentsPath());
         $invalidDocuments = [];
         $imported = 0;
         foreach ($files as $filePath) {
             if ($this->isValidFile($filePath)) {
                 $this->importFile($filePath);
             } else {
-                $invalidDocuments[] = $filePath;
+                $invalidDocuments[] = $this->stripSubfolder($filePath);
 
                 continue;
             }
@@ -52,51 +57,42 @@ class DocumentImportService
         ];
     }
 
-    public static function importAllConfiguredDisks(): void
+    public static function importAllConfiguredModels(): void
     {
-        foreach (config('yazar.content_types', []) as $disk => $contentType) {
-            $service = new self($disk, $contentType['type']);
+        foreach (config('yazar.content_types', []) as $modelClass) {
+            $service = new self($modelClass);
             $service->import();
         }
     }
 
     private function importFile(string $filePath): void
     {
-        $content = Storage::disk($this->diskName)->get($filePath)
+        $content = Storage::disk(self::DISK)->get($filePath)
             ?? throw new \RuntimeException("File not readable: $filePath");
         $parser = new MarkdownParser;
         $parser->parse($content);
 
-        $modelClass = $this->resolveModelClass();
+        $path = $this->stripSubfolder($filePath);
 
-        $modelClass::updateOrCreate(
-            ['path' => $filePath, 'type' => $this->type],
+        $this->modelClass::updateOrCreate(
+            ['path' => $path, 'type' => $this->modelClass::documentType()],
             [
                 'meta' => $parser->options,
-                'slug' => Str::replace('.md', '', $filePath),
+                'slug' => Str::replace('.md', '', $path),
                 'content' => $parser->markdownContent,
                 'published_at' => $parser->options['created_at'],
             ]
         );
     }
 
-    /**
-     * @return class-string<Document>
-     */
-    private function resolveModelClass(): string
+    private function stripSubfolder(string $filePath): string
     {
-        foreach (config('yazar.content_types', []) as $contentType) {
-            if ($contentType['type'] === $this->type) {
-                return $contentType['model'];
-            }
-        }
-
-        throw new \RuntimeException("No model configured for content type '{$this->type}'.");
+        return Str::after($filePath, $this->modelClass::documentsPath().'/');
     }
 
     private function isValidFile(string $filePath): bool
     {
-        $content = Storage::disk($this->diskName)->get($filePath);
+        $content = Storage::disk(self::DISK)->get($filePath);
         if ($content === null) {
             return false;
         }

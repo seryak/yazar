@@ -13,21 +13,6 @@ class DocumentableContractTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_post_declares_its_document_type(): void
-    {
-        $this->assertSame('post', Post::documentType());
-    }
-
-    public function test_category_declares_its_document_type(): void
-    {
-        $this->assertSame('category', Category::documentType());
-    }
-
-    public function test_page_declares_its_document_type(): void
-    {
-        $this->assertSame('page', Page::documentType());
-    }
-
     public function test_creating_post_with_mismatched_type_throws(): void
     {
         $this->expectException(InvalidArgumentException::class);

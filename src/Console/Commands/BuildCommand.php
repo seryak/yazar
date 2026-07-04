@@ -20,7 +20,7 @@ class BuildCommand extends Command
     public function handle(): int
     {
         Document::truncate();
-        DocumentImportService::importAllConfiguredDisks();
+        DocumentImportService::importAllConfiguredModels();
         $this->exportDocuments();
         $this->exportCategories();
         $this->buildFrontPage();
@@ -33,7 +33,7 @@ class BuildCommand extends Command
 
     protected function exportDocuments(): void
     {
-        $postModel = config('yazar.content_types.posts.model');
+        $postModel = config('yazar.content_types.posts');
 
         foreach ($postModel::all() as $post) {
             /** @var view-string $viewName */
@@ -45,7 +45,7 @@ class BuildCommand extends Command
 
     protected function exportCategories(): void
     {
-        $categoryModel = config('yazar.content_types.categories.model');
+        $categoryModel = config('yazar.content_types.categories');
         $perPage = max((int) config('yazar.pagination_per_page', 1), 1);
 
         /** @var Category $category */
@@ -75,7 +75,7 @@ class BuildCommand extends Command
 
     protected function buildFrontPage(): void
     {
-        $postModel = config('yazar.content_types.posts.model');
+        $postModel = config('yazar.content_types.posts');
         $perPage = max((int) config('yazar.pagination_per_page', 1), 1);
         $collection = $postModel::orderBy('published_at', 'desc')->get();
         $pageCount = max((int) ceil($collection->count() / $perPage), 1);

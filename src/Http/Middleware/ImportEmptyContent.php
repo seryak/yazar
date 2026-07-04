@@ -13,7 +13,7 @@ class ImportEmptyContent
     public function handle(Request $request, Closure $next): Response
     {
         if (Document::count() === 0) {
-            DocumentImportService::importAllConfiguredDisks();
+            DocumentImportService::importAllConfiguredModels();
         }
 
         return $next($request);

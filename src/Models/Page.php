@@ -10,4 +10,9 @@ class Page extends Document implements Documentable
     {
         return 'page';
     }
+
+    public static function documentsPath(): string
+    {
+        return 'pages';
+    }
 }

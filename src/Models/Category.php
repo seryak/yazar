@@ -16,6 +16,11 @@ class Category extends Document implements Documentable
         return 'category';
     }
 
+    public static function documentsPath(): string
+    {
+        return 'categories';
+    }
+
     /** @return HasMany<Post, $this> */
     public function posts(): HasMany
     {

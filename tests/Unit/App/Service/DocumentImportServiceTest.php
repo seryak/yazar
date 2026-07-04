@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use Yazar\Documents\DocumentImportService;
 use Yazar\Models\Document;
+use Yazar\Models\Page;
 
 class DocumentImportServiceTest extends TestCase
 {
@@ -14,9 +15,9 @@ class DocumentImportServiceTest extends TestCase
 
     public function test_it_skips_invalid_documents_and_collects_invalid_paths(): void
     {
-        Storage::fake('documents');
+        Storage::fake('content');
 
-        Storage::disk('documents')->put('valid.md', <<<'EOT'
+        Storage::disk('content')->put('pages/valid.md', <<<'EOT'
         ---
         view::extends: layout
         title: valid title
@@ -25,7 +26,7 @@ class DocumentImportServiceTest extends TestCase
         # valid
         EOT);
 
-        Storage::disk('documents')->put('invalid.md', <<<'EOT'
+        Storage::disk('content')->put('pages/invalid.md', <<<'EOT'
         ---
         view::extends: layout
         title: invalid title
@@ -33,7 +34,7 @@ class DocumentImportServiceTest extends TestCase
         # invalid
         EOT);
 
-        $service = new DocumentImportService('documents', 'page');
+        $service = new DocumentImportService(Page::class);
         $result = $service->import();
 
         $this->assertSame(2, $result['total']);
@@ -46,9 +47,9 @@ class DocumentImportServiceTest extends TestCase
 
     public function test_it_updates_existing_document_by_path_on_reimport(): void
     {
-        Storage::fake('documents');
+        Storage::fake('content');
 
-        Storage::disk('documents')->put('same-path.md', <<<'EOT'
+        Storage::disk('content')->put('pages/same-path.md', <<<'EOT'
         ---
         view::extends: layout
         title: first title
@@ -57,12 +58,12 @@ class DocumentImportServiceTest extends TestCase
         # first
         EOT);
 
-        $service = new DocumentImportService('documents', 'page');
+        $service = new DocumentImportService(Page::class);
         $first = $service->import();
 
         $this->assertSame(1, $first['imported']);
 
-        Storage::disk('documents')->put('same-path.md', <<<'EOT'
+        Storage::disk('content')->put('pages/same-path.md', <<<'EOT'
         ---
         view::extends: layout
         title: second title

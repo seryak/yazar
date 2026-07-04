@@ -17,17 +17,13 @@ return [
     'storage_url' => env('STORAGE_URL', ''),
 
     'content_types' => [
-        'posts' => ['type' => 'post', 'model' => Post::class],
-        'pages' => ['type' => 'page', 'model' => Page::class],
-        'categories' => ['type' => 'category', 'model' => Category::class],
+        'posts' => Post::class,
+        'pages' => Page::class,
+        'categories' => Category::class,
     ],
 
-    // Ключи здесь ДОЛЖНЫ совпадать с ключами content_types — DocumentImportService
-    // резолвит Storage-диск по тому же имени ('posts'/'pages'/'categories').
     'disks' => [
-        'posts' => ['driver' => 'local', 'root' => $contentPath.'/posts', 'throw' => false],
-        'pages' => ['driver' => 'local', 'root' => $contentPath.'/pages', 'throw' => false],
-        'categories' => ['driver' => 'local', 'root' => $contentPath.'/categories', 'throw' => false],
+        'content' => ['driver' => 'local', 'root' => $contentPath, 'throw' => false],
         'static_output' => [
             'driver' => 'local',
             'root' => public_path(env('OUTPUT_DIRECTORY', 'build')),
