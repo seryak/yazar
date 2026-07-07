@@ -11,4 +11,9 @@ interface Documentable
      * `content` disk. No leading or trailing slash (e.g. `'posts'`).
      */
     public static function documentsPath(): string;
+
+    /**
+     * @return class-string<Exporter>
+     */
+    public static function exporterClass(): string;
 }
