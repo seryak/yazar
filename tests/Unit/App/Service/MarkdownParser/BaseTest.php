@@ -30,6 +30,27 @@ class BaseTest extends TestCase
     }
 
     /**
+     * {@see MarkdownParser::__construct()}
+     */
+    public function test_constructor_applies_configured_extensions(): void
+    {
+        config(['yazar.markdown.extensions' => [NullCommonMarkExtension::class]]);
+
+        $object = new MarkdownParser;
+        $reflectedClass = new \ReflectionClass($object);
+        $reflection = $reflectedClass->getProperty('parser');
+        $reflection->setAccessible(true);
+
+        /** @var MarkdownConverter $parser */
+        $parser = $reflection->getValue($object);
+        $extensions = $parser->getEnvironment()->getExtensions();
+
+        $this->assertEquals(CommonMarkCoreExtension::class, get_class($extensions[0]));
+        $this->assertEquals(FrontMatterExtension::class, get_class($extensions[1]));
+        $this->assertEquals(NullCommonMarkExtension::class, get_class($extensions[2]));
+    }
+
+    /**
      * {@see MarkdownParser::parse()}
      */
     public function test_parse(): void

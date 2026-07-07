@@ -33,4 +33,14 @@ return [
             'report' => false,
         ],
     ],
+
+    'markdown' => [
+        'extensions' => [
+            // \Yazar\Markdown\Extensions\PhikiHighlightExtension::class,
+        ],
+        'phiki' => [
+            'theme' => env('YAZAR_CODE_THEME', 'github-light'),
+            'default_grammar' => env('YAZAR_CODE_DEFAULT_GRAMMAR', 'shellscript'),
+        ],
+    ],
 ];

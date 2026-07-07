@@ -35,6 +35,10 @@ class MarkdownParser
         $environment->addExtension(new CommonMarkCoreExtension);
         $environment->addExtension($frontMatterExtension);
 
+        foreach (config('yazar.markdown.extensions', []) as $extensionClass) {
+            $environment->addExtension(app($extensionClass));
+        }
+
         $this->parser = new MarkdownConverter($environment);
         $this->frontMatterParser = $frontMatterExtension->getFrontMatterParser();
     }
