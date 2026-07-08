@@ -4,6 +4,7 @@ namespace Tests\Unit\App\Service;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use Tests\TestCase;
 use Yazar\Documents\DocumentImportService;
 use Yazar\Models\Category;
@@ -11,6 +12,8 @@ use Yazar\Models\Document;
 use Yazar\Models\Page;
 use Yazar\Models\Post;
 
+#[CoversMethod(DocumentImportService::class, 'import')]
+#[CoversMethod(DocumentImportService::class, 'importAllConfiguredModels')]
 class DocumentImportServiceTest extends TestCase
 {
     use RefreshDatabase;

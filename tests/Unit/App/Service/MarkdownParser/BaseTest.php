@@ -5,9 +5,12 @@ namespace Tests\Unit\App\Service\MarkdownParser;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\FrontMatter\FrontMatterExtension;
 use League\CommonMark\MarkdownConverter;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use Tests\TestCase;
 use Yazar\Markdown\MarkdownParser;
 
+#[CoversMethod(MarkdownParser::class, '__construct')]
+#[CoversMethod(MarkdownParser::class, 'parse')]
 class BaseTest extends TestCase
 {
     /**
