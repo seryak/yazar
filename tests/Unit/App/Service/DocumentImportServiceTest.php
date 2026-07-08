@@ -6,8 +6,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 use Yazar\Documents\DocumentImportService;
+use Yazar\Models\Category;
 use Yazar\Models\Document;
 use Yazar\Models\Page;
+use Yazar\Models\Post;
 
 class DocumentImportServiceTest extends TestCase
 {
@@ -83,5 +85,111 @@ class DocumentImportServiceTest extends TestCase
         $this->assertSame('same-path.md', $document->path);
         $this->assertSame('second title', $document->meta?->title);
         $this->assertSame('# second', $document->content);
+    }
+
+    public function test_it_treats_malformed_front_matter_as_invalid(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('pages/broken.md', <<<'EOT'
+        ---
+        view::extends: [layout
+        title: broken
+        created_at: 2022-05-06
+        ---
+        # broken
+        EOT);
+
+        $service = new DocumentImportService(Page::class);
+        $result = $service->import();
+
+        $this->assertSame(0, $result['imported']);
+        $this->assertSame(['broken.md'], $result['invalid_documents']);
+        $this->assertDatabaseMissing('documents', ['path' => 'broken.md']);
+    }
+
+    public function test_it_treats_document_with_unregistered_view_as_invalid(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('pages/no-view.md', <<<'EOT'
+        ---
+        view::extends: this-view-does-not-exist
+        title: no view
+        created_at: 2022-05-06
+        ---
+        # no view
+        EOT);
+
+        $service = new DocumentImportService(Page::class);
+        $result = $service->import();
+
+        $this->assertSame(0, $result['imported']);
+        $this->assertSame(['no-view.md'], $result['invalid_documents']);
+    }
+
+    public function test_it_treats_blank_required_field_as_invalid(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('pages/blank-title.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: " "
+        created_at: 2022-05-06
+        ---
+        # blank title
+        EOT);
+
+        $service = new DocumentImportService(Page::class);
+        $result = $service->import();
+
+        $this->assertSame(0, $result['imported']);
+        $this->assertSame(['blank-title.md'], $result['invalid_documents']);
+    }
+
+    public function test_import_all_configured_models_imports_every_content_type(): void
+    {
+        Storage::fake('content');
+
+        config(['yazar.content_types' => [
+            'posts' => Post::class,
+            'pages' => Page::class,
+            'categories' => Category::class,
+        ]]);
+
+        Storage::disk('content')->put('posts/hello.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: hello post
+        created_at: 2022-05-06
+        ---
+        # hello post
+        EOT);
+
+        Storage::disk('content')->put('pages/about.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: about page
+        created_at: 2022-05-06
+        ---
+        # about page
+        EOT);
+
+        Storage::disk('content')->put('categories/laravel.md', <<<'EOT'
+        ---
+        view::extends: category
+        title: laravel category
+        created_at: 2022-05-06
+        ---
+        # laravel category
+        EOT);
+
+        DocumentImportService::importAllConfiguredModels();
+
+        $this->assertDatabaseHas('documents', ['path' => 'hello.md', 'type' => 'post']);
+        $this->assertDatabaseHas('documents', ['path' => 'about.md', 'type' => 'page']);
+        $this->assertDatabaseHas('documents', ['path' => 'laravel.md', 'type' => 'category']);
+        $this->assertSame(3, Document::count());
     }
 }
