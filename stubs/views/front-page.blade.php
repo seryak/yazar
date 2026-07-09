@@ -6,4 +6,6 @@
     @foreach($items as $page)
         <p><a href="{{ $page->slug }}">{{ $page->meta->title }}</a></p>
     @endforeach
+
+    <x-paginator :paginator="$paginator" />
 @endsection
