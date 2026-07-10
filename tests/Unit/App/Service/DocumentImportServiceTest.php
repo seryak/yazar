@@ -187,6 +187,138 @@ class DocumentImportServiceTest extends TestCase
         $this->assertDatabaseMissing('documents', ['path' => 'broken-disk-link.md']);
     }
 
+    public function test_it_excludes_files_with_hash_prefix_from_import(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('pages/visible.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: visible title
+        created_at: 2022-05-06
+        ---
+        # visible
+        EOT);
+
+        Storage::disk('content')->put('pages/#draft.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: draft title
+        created_at: 2022-05-06
+        ---
+        # draft
+        EOT);
+
+        $service = new DocumentImportService(Page::class);
+        $result = $service->import();
+
+        $this->assertSame(1, $result['total']);
+        $this->assertSame(1, $result['imported']);
+        $this->assertSame([], $result['invalid_documents']);
+
+        $this->assertDatabaseHas('documents', ['path' => 'visible.md']);
+        $this->assertDatabaseMissing('documents', ['path' => '#draft.md']);
+    }
+
+    public function test_it_excludes_hash_prefixed_file_regardless_of_subfolder(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('posts/#hidden.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: hidden title
+        created_at: 2022-05-06
+        ---
+        # hidden
+        EOT);
+
+        Storage::disk('content')->put('posts/not#hidden.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: not hidden title
+        created_at: 2022-05-06
+        ---
+        # not hidden
+        EOT);
+
+        $service = new DocumentImportService(Post::class);
+        $result = $service->import();
+
+        $this->assertSame(1, $result['total']);
+        $this->assertSame(1, $result['imported']);
+
+        $this->assertDatabaseMissing('documents', ['path' => '#hidden.md']);
+        $this->assertDatabaseHas('documents', ['path' => 'not#hidden.md']);
+    }
+
+    public function test_it_excludes_all_files_inside_a_hash_prefixed_folder(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('posts/#tools/git.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: git tool
+        created_at: 2022-05-06
+        ---
+        # git
+        EOT);
+
+        Storage::disk('content')->put('posts/tools/git.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: visible git tool
+        created_at: 2022-05-06
+        ---
+        # git
+        EOT);
+
+        $service = new DocumentImportService(Post::class);
+        $result = $service->import();
+
+        $this->assertSame(1, $result['total']);
+        $this->assertSame(1, $result['imported']);
+        $this->assertSame([], $result['invalid_documents']);
+
+        $this->assertDatabaseMissing('documents', ['path' => '#tools/git.md']);
+        $this->assertDatabaseHas('documents', ['path' => 'tools/git.md']);
+    }
+
+    public function test_import_all_configured_models_excludes_hash_prefixed_file_for_one_content_type(): void
+    {
+        Storage::fake('content');
+
+        config(['yazar.content_types' => [
+            'posts' => Post::class,
+            'pages' => Page::class,
+        ]]);
+
+        Storage::disk('content')->put('posts/#draft.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: draft post
+        created_at: 2022-05-06
+        ---
+        # draft post
+        EOT);
+
+        Storage::disk('content')->put('pages/about.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: about page
+        created_at: 2022-05-06
+        ---
+        # about page
+        EOT);
+
+        DocumentImportService::importAllConfiguredModels();
+
+        $this->assertDatabaseMissing('documents', ['path' => '#draft.md', 'type' => 'post']);
+        $this->assertDatabaseHas('documents', ['path' => 'about.md', 'type' => 'page']);
+        $this->assertSame(1, Document::count());
+    }
+
     public function test_import_all_configured_models_imports_every_content_type(): void
     {
         Storage::fake('content');

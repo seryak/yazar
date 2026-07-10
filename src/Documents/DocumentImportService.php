@@ -37,6 +37,11 @@ class DocumentImportService
     public function import(): array
     {
         $files = Storage::disk(self::DISK)->allFiles($this->modelClass::documentsPath());
+        $files = array_values(array_filter(
+            $files,
+            fn (string $filePath): bool => ! $this->isHiddenFile($filePath),
+        ));
+
         $invalidDocuments = [];
         $imported = 0;
         foreach ($files as $filePath) {
@@ -89,6 +94,17 @@ class DocumentImportService
     private function stripSubfolder(string $filePath): string
     {
         return Str::after($filePath, $this->modelClass::documentsPath().'/');
+    }
+
+    private function isHiddenFile(string $filePath): bool
+    {
+        foreach (explode('/', $filePath) as $segment) {
+            if (str_starts_with($segment, '#')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function isValidFile(string $filePath): bool
