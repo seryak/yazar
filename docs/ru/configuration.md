@@ -21,27 +21,22 @@
 
 ```php
 'content_types' => [
-    'posts' => ['type' => 'post', 'model' => Post::class],
-    'pages' => ['type' => 'page', 'model' => Page::class],
-    'categories' => ['type' => 'category', 'model' => Category::class],
+    'posts' => Post::class,
+    'pages' => Page::class,
+    'categories' => Category::class,
 ],
 ```
 
-Каждая запись описывает один тип контента:
+Плоское соответствие ключа классу Eloquent-модели, реализующей `Yazar\Contracts\Documentable`:
 
-- **Ключ** (`posts`/`pages`/`categories`) — используется `DocumentImportService::importAllConfiguredDisks()` как имя диска, с которого импортируются файлы; должен совпадать с ключом того же имени в `disks` (см. ниже).
-- **`type`** — значение, которое попадает в колонку `type` таблицы `documents`. Должно совпадать с тем, что возвращает `documentType()` указанной модели — `Document` отклоняет создание/обновление записи, если это не так (контракт `Yazar\Contracts\Documentable`).
-- **`model`** — класс Eloquent-модели для этого типа. Обязан реализовывать `Yazar\Contracts\Documentable`; можно переопределить на собственный подкласс (`Post`, `Page`, `Category` или их наследник) без изменения кода пакета.
-
-**Важный нюанс:** ключи `posts` и `categories` дополнительно используются напрямую, по фиксированному имени, в `ContentController` и `BuildCommand` (`config('yazar.content_types.posts.model')`, `config('yazar.content_types.categories.model')`) — это не полностью произвольные имена. Новый тип контента можно добавить под любым ключом, но переименовывать `posts`/`categories` в конфиге нельзя без правки этих двух классов.
+- **Ключ** (`posts`/`pages`/`categories`) — обходится обобщённо в `DocumentImportService::importAllConfiguredModels()`, `BuildCommand` и `ContentController::show()`. Ключи `posts` и `categories` дополнительно читаются напрямую, по фиксированному имени, в трёх местах `ContentController` (`showCategoryPage()`, `renderMainPage()`, `renderDocument()` — например, `config('yazar.content_types.posts')`). Новый тип контента можно добавить под любым ключом, но переименовывать `posts`/`categories` нельзя без правки этих мест вызова.
+- **Значение** — сам класс модели. Обязан реализовывать `Yazar\Contracts\Documentable`: `documentType(): string` (значение, попадающее в колонку `documents.type` — `Document` отклоняет создание/обновление записи, если оно не совпадает), `documentsPath(): string` (подпапка модели на общем диске `content`, см. `disks` ниже) и `exporterClass(): class-string<Exporter>` (логика статического экспорта, которую `php artisan build` использует для этого типа). Можно переопределить на собственный подкласс (`Post`, `Page`, `Category` или их наследник) без изменения кода пакета.
 
 ## `disks`
 
 ```php
 'disks' => [
-    'posts' => ['driver' => 'local', 'root' => $contentPath.'/posts', 'throw' => false],
-    'pages' => ['driver' => 'local', 'root' => $contentPath.'/pages', 'throw' => false],
-    'categories' => ['driver' => 'local', 'root' => $contentPath.'/categories', 'throw' => false],
+    'content' => ['driver' => 'local', 'root' => $contentPath, 'throw' => false],
     'static_output' => [
         'driver' => 'local',
         'root' => public_path(env('OUTPUT_DIRECTORY', 'build')),
@@ -55,7 +50,7 @@
 
 Определения Laravel `Storage`-дисков, которые `YazarServiceProvider::boot()` регистрирует во время выполнения (`config(["filesystems.disks.$name" => $diskConfig])`) — они не описываются в стандартном `config/filesystems.php` приложения.
 
-- **`posts`/`pages`/`categories`** — каждый диск указывает на свою поддиректорию внутри `content_path`. Ключи здесь **должны** совпадать с ключами `content_types` — `DocumentImportService` резолвит диск по тому же имени. `throw: false` — отсутствие директории на диске не бросает исключение при импорте.
+- **`content`** — единый общий диск для всего Markdown-контента, корень — `content_path`. Каждая модель `Documentable` объявляет свою подпапку внутри него через `documentsPath()` (например, `Post::documentsPath()` возвращает `'posts'`); `DocumentImportService` получает список файлов через `Storage::disk('content')->allFiles($modelClass::documentsPath())` и сам отрезает префикс подпапки перед сохранением `path`/`slug` (поэтому URL остаются `/hello-world/`, а не `/posts/hello-world/`). `throw: false` — отсутствие директории на диске не бросает исключение при импорте.
 - **`static_output`** — диск, куда `php artisan build` записывает готовые HTML-страницы. `root` — та же директория, что задаётся опцией `output_directory` (см. выше), но читается отдельным вызовом `env('OUTPUT_DIRECTORY', 'build')`. `url`/`visibility: public` нужны, если содержимое этого диска предполагается отдавать напрямую как публичные файлы.
 
 ## `markdown`
@@ -64,7 +59,9 @@
 'markdown' => [
     'extensions' => [
         // \Yazar\Markdown\Extensions\PhikiHighlightExtension::class,
+        // \Yazar\Markdown\Extensions\DiskUrlExtension::class,
     ],
+    'default_disk' => env('YAZAR_MARKDOWN_DEFAULT_DISK'),
     'phiki' => [
         'theme' => env('YAZAR_CODE_THEME', 'github-light'),
         'default_grammar' => env('YAZAR_CODE_DEFAULT_GRAMMAR', 'shellscript'),
@@ -73,11 +70,40 @@
 ```
 
 - **`extensions`** — список class-string'ов `League\CommonMark\Extension\ExtensionInterface`, которые `Yazar\Markdown\MarkdownParser::__construct()` добавляет в `Environment` поверх обязательного ядра (`CommonMarkCoreExtension` + `FrontMatterExtension`). По умолчанию пуст — без явного добавления класса в этот список поведение рендеринга markdown не меняется.
+- **`default_disk`** — диск, который использует `Yazar\Markdown\Extensions\DiskUrlExtension`, когда ссылка `disk://path` не указывает имя диска (см. ниже). По умолчанию `null` — тогда используется собственный диск по умолчанию хост-приложения (`config('filesystems.default')`).
 - **`phiki`** — настройки для `Yazar\Markdown\Extensions\PhikiHighlightExtension` (подсветка синтаксиса fenced-код-блоков через библиотеку `phiki/phiki`). Расширение читает эти значения самостоятельно, они не влияют ни на что, пока `PhikiHighlightExtension::class` не добавлен в `extensions` выше.
   - **`theme`** — тема оформления, передаётся в `Phiki::codeToHtml()` (валидные значения — слаги `Phiki\Theme\Theme`, например `'github-light'`, `'dracula'`, `'nord'`).
   - **`default_grammar`** — грамматика, применяемая к fenced-блокам без указанного языка (голый ` ``` ` без слова после бэктиков). Слаг должен совпадать с одним из кейсов `Phiki\Grammar\Grammar` (например, `'shellscript'`, `'php'`, `'json'`).
 
 **Как включить подсветку:** добавить `\Yazar\Markdown\Extensions\PhikiHighlightExtension::class` в `markdown.extensions` в опубликованном `config/yazar.php` хост-приложения. Язык блока берётся из info-string фенса (` ```php ` → `php`); для блоков без языка используется `default_grammar`.
+
+## Ссылки на файлы Laravel-диска из markdown
+
+`Yazar\Markdown\Extensions\DiskUrlExtension` позволяет ссылаться из markdown-контента на файл на **любом** зарегистрированном Laravel-диске — не только на собственных дисках движка (`content`/`static_output`), а на любом ключе из `filesystems.disks`, включая `public`, `s3` или кастомный диск хост-приложения — без хардкода абсолютного URL, который отличался бы между окружениями.
+
+Напишите `disk(имяДиска)://путь/к/файлу.ext` где угодно в документе, и при рендере это превратится в `Storage::disk('имяДиска')->url('путь/к/файлу.ext')`:
+
+```markdown
+![Скриншот](disk(s3)://screenshots/dashboard.png)
+
+Полный отчёт — [здесь](disk(media)://reports/2026-q1.pdf).
+
+Можно вставить disk(s3)://screenshots/dashboard.png прямо в предложение,
+или внутри сырого HTML: <img src="disk(s3)://screenshots/dashboard.png">.
+```
+
+Имя диска можно опустить — `disk://путь/к/файлу.ext` резолвится через `markdown.default_disk` (см. раздел `markdown` выше):
+
+```markdown
+![Скриншот](disk://screenshots/dashboard.png)
+```
+
+- Работает внутри `![alt](...)`, `[текст](...)`, обычного текста параграфа и сырого HTML — не только внутри синтаксиса ссылок/картинок.
+- Не резолвится внутри fenced-код-блоков и инлайн-кода — можно показать синтаксис как пример, не опасаясь что он превратится в реальную ссылку.
+- Front matter (YAML-шапка в начале файла) этим расширением **не обрабатывается** — только тело markdown-документа.
+- Без ограничивающего списка дисков: если диск не зарегистрирован, либо его драйвер не умеет генерировать URL, резолвинг бросает `Yazar\Markdown\Extensions\DiskUrlResolutionException` (оборачивающее исходную ошибку) вместо тихой подстановки исходного текста. При импорте контента (`DocumentImportService`, используется `php artisan build`) документ с битой disk-ссылкой помечается невалидным, а не роняет весь импорт целиком.
+
+**Как включить:** добавить `\Yazar\Markdown\Extensions\DiskUrlExtension::class` в `markdown.extensions` в опубликованном `config/yazar.php` хост-приложения.
 
 ## Смотри также
 

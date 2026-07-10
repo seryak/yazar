@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use League\CommonMark\Exception\CommonMarkException;
 use Yazar\Contracts\Documentable;
+use Yazar\Markdown\Extensions\DiskUrlResolutionException;
 use Yazar\Markdown\MarkdownParser;
 use Yazar\Models\Document;
 
@@ -100,7 +101,7 @@ class DocumentImportService
 
         try {
             $parser->parse($content);
-        } catch (CommonMarkException) {
+        } catch (CommonMarkException|DiskUrlResolutionException) {
             return false;
         }
 

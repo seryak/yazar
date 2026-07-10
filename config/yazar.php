@@ -37,7 +37,9 @@ return [
     'markdown' => [
         'extensions' => [
             // \Yazar\Markdown\Extensions\PhikiHighlightExtension::class,
+            // \Yazar\Markdown\Extensions\DiskUrlExtension::class,
         ],
+        'default_disk' => env('YAZAR_MARKDOWN_DEFAULT_DISK'),
         'phiki' => [
             'theme' => env('YAZAR_CODE_THEME', 'github-light'),
             'default_grammar' => env('YAZAR_CODE_DEFAULT_GRAMMAR', 'shellscript'),

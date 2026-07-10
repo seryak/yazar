@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use Tests\TestCase;
 use Yazar\Documents\DocumentImportService;
+use Yazar\Markdown\Extensions\DiskUrlExtension;
 use Yazar\Models\Category;
 use Yazar\Models\Document;
 use Yazar\Models\Page;
@@ -149,6 +150,41 @@ class DocumentImportServiceTest extends TestCase
 
         $this->assertSame(0, $result['imported']);
         $this->assertSame(['blank-title.md'], $result['invalid_documents']);
+    }
+
+    public function test_it_treats_document_with_broken_disk_link_as_invalid_without_failing_the_whole_import(): void
+    {
+        Storage::fake('content');
+
+        config(['yazar.markdown.extensions' => [DiskUrlExtension::class]]);
+
+        Storage::disk('content')->put('pages/valid.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: valid title
+        created_at: 2022-05-06
+        ---
+        # valid
+        EOT);
+
+        Storage::disk('content')->put('pages/broken-disk-link.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: broken disk link
+        created_at: 2022-05-06
+        ---
+        ![alt](disk(unregistered)://photos/cat.png)
+        EOT);
+
+        $service = new DocumentImportService(Page::class);
+        $result = $service->import();
+
+        $this->assertSame(2, $result['total']);
+        $this->assertSame(1, $result['imported']);
+        $this->assertSame(['broken-disk-link.md'], $result['invalid_documents']);
+
+        $this->assertDatabaseHas('documents', ['path' => 'valid.md']);
+        $this->assertDatabaseMissing('documents', ['path' => 'broken-disk-link.md']);
     }
 
     public function test_import_all_configured_models_imports_every_content_type(): void

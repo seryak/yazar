@@ -8,6 +8,7 @@ use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\FrontMatter\FrontMatterExtension;
 use League\CommonMark\Extension\FrontMatter\FrontMatterParserInterface;
 use League\CommonMark\MarkdownConverter;
+use Yazar\Markdown\Extensions\DiskUrlResolutionException;
 
 class MarkdownParser
 {
@@ -40,7 +41,7 @@ class MarkdownParser
     }
 
     /**
-     * @throws CommonMarkException
+     * @throws CommonMarkException|DiskUrlResolutionException
      */
     public function parse(string $string): void
     {
