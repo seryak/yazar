@@ -19,24 +19,24 @@ class Paginator
 
     public function __construct(int $pageCount, string $slug, int $currentPageNumber)
     {
-        $slug = ($slug === '/') ? '' : $slug;
+        $prefix = rtrim($slug, '/');
         $this->links = collect([]);
         for ($it = 1; $it <= $pageCount; $it++) {
-            $link = $it === 1 ? $slug : $slug.'/'.$it;
+            $link = $it === 1 ? $slug : $prefix.'/'.$it;
             $this->links->push($link);
         }
 
         if ($currentPageNumber === 1) {
             $this->prevLink = null;
-            $this->nextLink = $pageCount > 1 ? $slug.'/'.$currentPageNumber + 1 : null;
+            $this->nextLink = $pageCount > 1 ? $prefix.'/'.($currentPageNumber + 1) : null;
         } else {
             if ($currentPageNumber === 2) {
                 $this->prevLink = $slug;
             } else {
-                $this->prevLink = $slug.'/'.$currentPageNumber - 1;
+                $this->prevLink = $prefix.'/'.($currentPageNumber - 1);
             }
 
-            $this->nextLink = $currentPageNumber < $pageCount ? $slug.'/'.$currentPageNumber + 1 : null;
+            $this->nextLink = $currentPageNumber < $pageCount ? $prefix.'/'.($currentPageNumber + 1) : null;
         }
 
         $this->count = $pageCount;
