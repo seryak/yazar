@@ -1,6 +1,5 @@
 <?php
 
-use Yazar\Markdown\Extensions\DiskUrlExtension;
 use Yazar\Models\Category;
 use Yazar\Models\Page;
 use Yazar\Models\Post;
@@ -38,8 +37,8 @@ return [
     'markdown' => [
         'extensions' => [
             // \Yazar\Markdown\Extensions\PhikiHighlightExtension::class,
-            // \Yazar\Markdown\Extensions\ImgproxyExtension::class, // должна идти ДО DiskUrlExtension, если обе включены
-            DiskUrlExtension::class,
+            // \Yazar\Markdown\Extensions\ImgproxyExtension::class,
+            //  DiskUrlExtension::class,
         ],
         'default_disk' => env('YAZAR_MARKDOWN_DEFAULT_DISK'),
         'phiki' => [
