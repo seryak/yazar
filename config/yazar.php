@@ -1,5 +1,6 @@
 <?php
 
+use Yazar\Markdown\Extensions\DiskUrlExtension;
 use Yazar\Models\Category;
 use Yazar\Models\Page;
 use Yazar\Models\Post;
@@ -37,12 +38,22 @@ return [
     'markdown' => [
         'extensions' => [
             // \Yazar\Markdown\Extensions\PhikiHighlightExtension::class,
-            // \Yazar\Markdown\Extensions\DiskUrlExtension::class,
+            // \Yazar\Markdown\Extensions\ImgproxyExtension::class, // должна идти ДО DiskUrlExtension, если обе включены
+            DiskUrlExtension::class,
         ],
         'default_disk' => env('YAZAR_MARKDOWN_DEFAULT_DISK'),
         'phiki' => [
             'theme' => env('YAZAR_CODE_THEME', 'github-light'),
             'default_grammar' => env('YAZAR_CODE_DEFAULT_GRAMMAR', 'shellscript'),
+        ],
+    ],
+
+    'imgproxy' => [
+        'base_url' => env('IMGPROXY_BASE_URL', 'http://127.0.0.1:6066'),
+        'key' => env('IMGPROXY_KEY'),
+        'salt' => env('IMGPROXY_SALT'),
+        'presets' => [
+            // 'post-cover' => 'rs:fit:1200:630/q:80/f:webp',
         ],
     ],
 ];

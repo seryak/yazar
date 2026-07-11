@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use League\CommonMark\Exception\CommonMarkException;
 use Yazar\Contracts\Documentable;
 use Yazar\Markdown\Extensions\DiskUrlResolutionException;
+use Yazar\Markdown\Extensions\ImgproxyResolutionException;
 use Yazar\Markdown\MarkdownParser;
 use Yazar\Models\Document;
 
@@ -117,7 +118,7 @@ class DocumentImportService
 
         try {
             $parser->parse($content);
-        } catch (CommonMarkException|DiskUrlResolutionException) {
+        } catch (CommonMarkException|DiskUrlResolutionException|ImgproxyResolutionException) {
             return false;
         }
 

@@ -105,6 +105,56 @@ The disk name can be omitted — `disk://path/to/file.ext` resolves against `mar
 
 **How to enable:** add `\Yazar\Markdown\Extensions\DiskUrlExtension::class` to `markdown.extensions` in the host application's published `config/yazar.php`.
 
+## Imgproxy links from Markdown
+
+`Yazar\Markdown\Extensions\ImgproxyExtension` lets you embed signed [imgproxy](https://imgproxy.net/) links in Markdown content — syntax `imgproxy(SOURCE, 'preset-key')`, where `SOURCE` is either a `disk(diskName)://path` reference (as in the section above) or an arbitrary URL used as-is:
+
+```markdown
+![Cover](imgproxy(disk(yandex)://images-posts/figma/dashed-line.gif, 'post-cover'))
+
+A plain URL works too: imgproxy(https://example.com/photo.jpg, 'post-cover').
+```
+
+`'preset-key'` resolves through a new config block, `config('yazar.imgproxy.presets')` — a raw imgproxy processing-options string used as-is, with no DSL of its own layered on top of imgproxy's:
+
+```php
+'imgproxy' => [
+    'base_url' => env('IMGPROXY_BASE_URL', 'http://127.0.0.1:6066'),
+    'key' => env('IMGPROXY_KEY'),
+    'salt' => env('IMGPROXY_SALT'),
+    'presets' => [
+        'post-cover' => 'rs:fit:1200:630/q:80/f:webp',
+    ],
+],
+```
+
+- **`base_url`** — the imgproxy service address, prepended to the generated link.
+- **`key`/`salt`** — hex strings used for HMAC-signing the link (see [imgproxy's URL generation docs](https://docs.imgproxy.net)). **Must exactly match** `IMGPROXY_KEY`/`IMGPROXY_SALT` in the imgproxy service's own `.env` — two separate `.env` files in two separate repositories, kept in sync manually. A mismatch does not raise an error on `ImgproxyExtension`'s side (the link is still built and signed with whatever keys were given) — it results in a `403` from the imgproxy service itself when the incorrectly-signed link is visited.
+- **`presets`** — a map of `key → raw imgproxy options string`. The value is not validated against imgproxy's actual options syntax — an invalid options string is the responsibility of whoever writes the config.
+
+**Resolving `disk(diskName)://path` inside `imgproxy(...)` depends on the disk's `driver`**, not always `Storage::url()`:
+- if the disk has `driver: s3` — the imgproxy source becomes `s3://bucket/root/path`, built directly from the disk's config (without touching the disk itself and without an S3 adapter as a package dependency) — this is how imgproxy works with private S3 buckets that have no public `url`;
+- otherwise — the source is `Storage::disk('diskName')->url('path')`, same as `DiskUrlExtension`.
+
+- Works in the same places as `DiskUrlExtension`: `![alt](...)`, `[text](...)`, plain paragraph text, raw HTML.
+- Left untouched inside fenced code blocks and inline code.
+- Front matter is not processed by this extension.
+- Resolution errors (unknown preset key, unregistered disk, invalid `key`/`salt`) throw `Yazar\Markdown\Extensions\ImgproxyResolutionException` instead of silently falling back to the raw text. During import, a document with a broken `imgproxy(...)` reference is marked invalid, same as a broken `disk(...)` reference.
+
+**Important — extension order:** if both `ImgproxyExtension` and `DiskUrlExtension` are enabled, `ImgproxyExtension` **must** come before `DiskUrlExtension` in the `markdown.extensions` list — otherwise `DiskUrlExtension` will mangle the nested `disk(...)` call inside `imgproxy(...)` before `ImgproxyExtension` gets to see it.
+
+**How to enable:** add `\Yazar\Markdown\Extensions\ImgproxyExtension::class` to `markdown.extensions` (before `DiskUrlExtension::class`, if that's also enabled) in the host application's published `config/yazar.php`.
+
+**The `imgproxy()` helper for Blade and front matter fields.** `ImgproxyExtension` only resolves `imgproxy(...)` inside the Markdown document body — front matter (e.g. a `cover_image` field in the YAML header) is not processed by this extension (see above). For those cases, a global `imgproxy(string $source, string $presetKey): string` function is available — it builds and signs the same link directly from PHP/Blade, using the same `SOURCE` form (`disk(diskName)://path` or a bare URL) and the same `config('yazar.imgproxy.presets')`:
+
+```blade
+@if($page->meta->cover_image)
+    <img src="{{ imgproxy('disk(yandex)://'.$page->meta->cover_image, 'post-cover') }}">
+@endif
+```
+
+The helper does not require `ImgproxyExtension::class` to be enabled in `markdown.extensions` — it reads the `yazar.imgproxy` config (`base_url`/`key`/`salt`/`presets`) directly.
+
 ## See also
 
 - [Harness](harness.md) — how to test configuration locally against a real Laravel application

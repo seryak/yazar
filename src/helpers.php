@@ -1,5 +1,7 @@
 <?php
 
+use Yazar\Markdown\Extensions\ImgproxyExtension;
+
 if (! function_exists('content_path')) {
     function content_path(string $path): string
     {
@@ -11,5 +13,12 @@ if (! function_exists('storage')) {
     function storage(string $path): string
     {
         return config('yazar.storage_url').$path;
+    }
+}
+
+if (! function_exists('imgproxy')) {
+    function imgproxy(string $source, string $presetKey): string
+    {
+        return ImgproxyExtension::url($source, $presetKey);
     }
 }
