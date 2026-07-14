@@ -62,6 +62,7 @@ Per-document view selection is not configured here: it comes from the `view::ext
 
 - `php artisan build` — imports all configured content, renders it to static HTML, and (if `deploy_target` is set) copies the result there.
 - `php artisan yazar:install` — publishes config, default views, and demo content; supports `--force` to overwrite.
+- `php artisan yazar:clear-imgproxy-cache` — deletes every file cached by `ImgproxyBuildResolver` during static builds (see [configuration docs](docs/en/configuration.md#caching-imgproxy-links-into-the-static-build)).
 
 ## Local development
 

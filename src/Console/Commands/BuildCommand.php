@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Command\Command as CommandAlias;
+use Yazar\Build\ImgproxyBuildResolver;
 use Yazar\Contracts\Documentable;
 use Yazar\Documents\DocumentImportService;
 use Yazar\Exporters\FrontPageExporter;
@@ -27,6 +28,18 @@ class BuildCommand extends Command
         }
 
         (new FrontPageExporter)->export();
+
+        $imgproxyResolver = new ImgproxyBuildResolver;
+        $failures = $imgproxyResolver->resolve();
+        if ($failures !== []) {
+            $this->newLine();
+            $this->warn(count($failures).' imgproxy-ссылок не удалось скачать при сборке:');
+            foreach ($failures as $url => $reason) {
+                $this->line("  - {$url}: {$reason}");
+            }
+        }
+        $imgproxyResolver->publish();
+
         $this->move();
 
         $this->info('generating html pages is finish');

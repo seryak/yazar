@@ -45,6 +45,19 @@ A flat map from a key to an Eloquent model class implementing `Yazar\Contracts\D
         'throw' => false,
         'report' => false,
     ],
+    'imgproxy_build_cache' => [
+        'driver' => 'local',
+        'root' => storage_path('app/imgproxy-cache'),
+        'visibility' => 'public',
+        'throw' => false,
+    ],
+    'imgproxy_cache' => [
+        'driver' => 'local',
+        'root' => public_path('imgproxy-cache'),
+        'url' => '/imgproxy-cache',
+        'visibility' => 'public',
+        'throw' => false,
+    ],
 ],
 ```
 
@@ -52,6 +65,8 @@ Definitions of Laravel `Storage` disks that `YazarServiceProvider::boot()` regis
 
 - **`content`** — a single shared disk for all Markdown content, rooted at `content_path`. Each `Documentable` model declares its own subfolder within it via `documentsPath()` (e.g. `Post::documentsPath()` returns `'posts'`); `DocumentImportService` lists `Storage::disk('content')->allFiles($modelClass::documentsPath())` and strips the subfolder prefix itself before storing `path`/`slug` (so URLs stay `/hello-world/`, not `/posts/hello-world/`). `throw: false` — a missing directory does not throw an exception during import. Files or folders whose name starts with `#` (e.g. `#draft.md` or `#tools/git.md`) are fully excluded from import — they are never read, never stored in the `documents` table, and never published by either the static build or dynamic routing. Every path segment is checked, so a `#`-prefixed folder hides all of its contents at any nesting depth. This is a simple way to hide a draft post, page, or a whole batch of content without deleting or moving any files.
 - **`static_output`** — the disk that `php artisan build` writes finished HTML pages to. `root` is the same directory set by the `output_directory` option (see above), but read via a separate `env('OUTPUT_DIRECTORY', 'build')` call. `url`/`visibility: public` are needed if this disk's contents are meant to be served directly as public files.
+- **`imgproxy_build_cache`** — where `Yazar\Build\ImgproxyBuildResolver` actually downloads imgproxy images to during static build (see [Caching imgproxy links into the static build](#caching-imgproxy-links-into-the-static-build) below). Always a `local` disk, never meant to be served directly — its `root` subdirectory name (`imgproxy-cache` by default) is the only configurable part, via `YAZAR_IMGPROXY_CACHE_DIRECTORY`.
+- **`imgproxy_cache`** — the disk that actually serves the cached images. Fully host-configurable like any other disk (local `public/`, S3, or anything else) — publish `config/yazar.php` and edit this entry to point it wherever images should be served from. `ImgproxyBuildResolver::publish()` copies every file from `imgproxy_build_cache` onto this disk after a successful download pass.
 
 ## `markdown`
 
@@ -154,6 +169,23 @@ A plain URL works too: imgproxy(https://example.com/photo.jpg, 'post-cover').
 ```
 
 The helper does not require `ImgproxyExtension::class` to be enabled in `markdown.extensions` — it reads the `yazar.imgproxy` config (`base_url`/`key`/`salt`/`presets`) directly.
+
+## Caching imgproxy links into the static build
+
+`Yazar\Build\ImgproxyBuildResolver` is a post-processing step run by `php artisan build`, after every `Exporter` (per `content_types` and `FrontPageExporter`) has finished writing HTML to `static_output`, and before `deploy_target` copying. It does **not** change `ImgproxyExtension` or the `imgproxy()` helper — both keep resolving normal runtime imgproxy links exactly as described above. Instead, it scans the already-generated HTML for any link starting with `config('yazar.imgproxy.base_url')` — regardless of whether that link came from `ImgproxyExtension` inside a Markdown body or from a direct `imgproxy()` call in a Blade view (both produce byte-identical signed URLs for the same `SOURCE`+preset) — downloads it once onto the local `imgproxy_build_cache` disk, and rewrites the HTML to point at the corresponding path on `imgproxy_cache` instead of the runtime imgproxy URL. A separate `ImgproxyBuildResolver::publish()` call, run right after `resolve()`, then copies every downloaded file from `imgproxy_build_cache` onto `imgproxy_cache` — the disk that actually serves them.
+
+This closes a gap the original Markdown-imgproxy-links feature left open on purpose: without this step, a statically built site would still depend on the imgproxy service being reachable at *view* time, even though the whole point of a static build is to not need a backend at all.
+
+- **Cache layout: `{preset key}/{original filename}`.** For example, `imgproxy(disk(yandex)://covers/photo.jpg, 'post-cover')` caches to `post-cover/photo.jpg` on both disks. The preset key is recovered by matching the processing-options string embedded in the signed URL back against the current `config('yazar.imgproxy.presets')` — if no configured preset matches (e.g. the preset was renamed or removed after the link was generated), the file falls back to an `unknown/` subfolder. **Known limitation:** the original filename is used as-is, not hashed — two different source images that happen to share the same filename under the same preset (e.g. two different posts both using a local `cover.jpg`) will collide and overwrite each other in the cache.
+- **The cache persists across builds.** Since the target path is fully determined by the preset and filename, re-running `php artisan build` does not re-download an image whose file already exists on `imgproxy_build_cache`, and `publish()` skips any file that's already present on `imgproxy_cache`. Trade-off, accepted deliberately: if the underlying source image changes while its path and preset stay the same, neither cache is automatically invalidated — use `php artisan yazar:clear-imgproxy-cache` (below) to force a re-download.
+- **Network availability requirement.** Unlike `ImgproxyExtension` (which only builds and signs URLs), this step performs real HTTP requests — `php artisan build` now requires the imgproxy service to be reachable over the network at build time.
+- **Failed downloads do not fail the build.** If a link can't be downloaded (connection error, timeout, non-2xx response), it's left as the original runtime imgproxy URL in the HTML, and the command prints a single list of every failed link with its reason after all exports finish. Exit code stays `0`.
+- **Not part of `deploy_target` copying.** Unlike `static_output` and the frontend `build` assets, `imgproxy_cache` is never copied into `deploy_target` by `BuildCommand::move()` — publishing happens directly onto whatever disk `imgproxy_cache` is configured to be (local `public/`, S3, or anything else), independently of whether `deploy_target` is even set.
+- **New dependency.** Downloading requires the Laravel HTTP client (`illuminate/http`), a direct `require` of this package.
+
+No configuration is needed to enable this step beyond what `ImgproxyExtension`/the `imgproxy()` helper already need — it runs unconditionally on every `build`, and simply does nothing if `yazar.imgproxy.base_url` is empty or no matching links are found.
+
+**Clearing the cache.** `php artisan yazar:clear-imgproxy-cache` deletes every file on the `imgproxy_cache` disk. Use it when a cached image has gone stale (source changed, preset changed) and you want the next `build` to re-download everything instead of reusing what's already cached.
 
 ## See also
 

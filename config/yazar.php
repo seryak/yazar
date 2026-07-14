@@ -32,6 +32,19 @@ return [
             'throw' => false,
             'report' => false,
         ],
+        'imgproxy_build_cache' => [
+            'driver' => 'local',
+            'root' => storage_path('app/'.trim(env('YAZAR_IMGPROXY_CACHE_DIRECTORY', 'imgproxy-cache'), '/')),
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+        'imgproxy_cache' => [
+            'driver' => 'local',
+            'root' => public_path('imgproxy-cache'),
+            'url' => '/imgproxy-cache',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
     ],
 
     'markdown' => [

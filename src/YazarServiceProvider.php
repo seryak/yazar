@@ -4,6 +4,7 @@ namespace Yazar;
 
 use Illuminate\Support\ServiceProvider;
 use Yazar\Console\Commands\BuildCommand;
+use Yazar\Console\Commands\ClearImgproxyCacheCommand;
 use Yazar\Console\Commands\InstallCommand;
 
 class YazarServiceProvider extends ServiceProvider
@@ -38,6 +39,7 @@ class YazarServiceProvider extends ServiceProvider
             $this->commands([
                 BuildCommand::class,
                 InstallCommand::class,
+                ClearImgproxyCacheCommand::class,
             ]);
         }
     }

@@ -9,6 +9,7 @@
         "illuminate/console": "^12.0",
         "illuminate/contracts": "^12.0",
         "illuminate/database": "^12.0",
+        "illuminate/http": "^12.0",
         "illuminate/support": "^12.0",
         "graham-campbell/markdown": "^16.0",
         "phiki/phiki": "^2.0",
