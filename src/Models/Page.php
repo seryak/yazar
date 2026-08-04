@@ -2,11 +2,10 @@
 
 namespace Yazar\Models;
 
-use Yazar\Contracts\Documentable;
 use Yazar\Contracts\Exporter;
 use Yazar\Exporters\NullExporter;
 
-class Page extends Document implements Documentable
+class Page extends Document
 {
     public static function documentType(): string
     {

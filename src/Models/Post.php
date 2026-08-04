@@ -2,12 +2,10 @@
 
 namespace Yazar\Models;
 
-use Illuminate\Support\Str;
-use Yazar\Contracts\Documentable;
 use Yazar\Contracts\Exporter;
 use Yazar\Exporters\PostExporter;
 
-class Post extends Document implements Documentable
+class Post extends Document
 {
     public static function documentType(): string
     {

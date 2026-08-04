@@ -5,7 +5,9 @@ namespace Tests\Unit\App\Service;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
+use Yazar\Documents\ContentImporter;
 use Yazar\Documents\DocumentImportService;
 use Yazar\Markdown\Extensions\DiskUrlExtension;
 use Yazar\Markdown\Extensions\ImgproxyExtension;
@@ -15,11 +17,12 @@ use Yazar\Models\Page;
 use Yazar\Models\Post;
 
 #[CoversMethod(DocumentImportService::class, 'import')]
-#[CoversMethod(DocumentImportService::class, 'importAllConfiguredModels')]
+#[CoversMethod(ContentImporter::class, 'importAll')]
 class DocumentImportServiceTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[TestDox('import() skips invalid documents and collects their paths in invalid_documents')]
     public function test_it_skips_invalid_documents_and_collects_invalid_paths(): void
     {
         Storage::fake('content');
@@ -52,6 +55,7 @@ class DocumentImportServiceTest extends TestCase
         $this->assertDatabaseMissing('documents', ['path' => 'invalid.md']);
     }
 
+    #[TestDox('import() updates the existing document by path on reimport')]
     public function test_it_updates_existing_document_by_path_on_reimport(): void
     {
         Storage::fake('content');
@@ -83,15 +87,16 @@ class DocumentImportServiceTest extends TestCase
 
         $this->assertSame(1, $second['imported']);
         $this->assertSame([], $second['invalid_documents']);
-        $this->assertSame(1, Document::count());
+        $this->assertDatabaseCount(Document::TABLE, 1);
 
-        $document = Document::firstOrFail();
+        $document = Page::firstOrFail();
 
         $this->assertSame('same-path.md', $document->path);
         $this->assertSame('second title', $document->meta?->title);
         $this->assertSame('# second', $document->content);
     }
 
+    #[TestDox('import() treats a document with malformed front matter as invalid')]
     public function test_it_treats_malformed_front_matter_as_invalid(): void
     {
         Storage::fake('content');
@@ -113,6 +118,7 @@ class DocumentImportServiceTest extends TestCase
         $this->assertDatabaseMissing('documents', ['path' => 'broken.md']);
     }
 
+    #[TestDox('import() treats a document with an unregistered view as invalid')]
     public function test_it_treats_document_with_unregistered_view_as_invalid(): void
     {
         Storage::fake('content');
@@ -133,6 +139,7 @@ class DocumentImportServiceTest extends TestCase
         $this->assertSame(['no-view.md'], $result['invalid_documents']);
     }
 
+    #[TestDox('import() treats a document with a blank required field as invalid')]
     public function test_it_treats_blank_required_field_as_invalid(): void
     {
         Storage::fake('content');
@@ -153,6 +160,7 @@ class DocumentImportServiceTest extends TestCase
         $this->assertSame(['blank-title.md'], $result['invalid_documents']);
     }
 
+    #[TestDox('import() marks a document with a broken disk link as invalid without failing the whole import')]
     public function test_it_treats_document_with_broken_disk_link_as_invalid_without_failing_the_whole_import(): void
     {
         Storage::fake('content');
@@ -188,6 +196,7 @@ class DocumentImportServiceTest extends TestCase
         $this->assertDatabaseMissing('documents', ['path' => 'broken-disk-link.md']);
     }
 
+    #[TestDox('import() marks a document with a broken imgproxy link as invalid without failing the whole import')]
     public function test_it_treats_document_with_broken_imgproxy_link_as_invalid_without_failing_the_whole_import(): void
     {
         Storage::fake('content');
@@ -223,6 +232,7 @@ class DocumentImportServiceTest extends TestCase
         $this->assertDatabaseMissing('documents', ['path' => 'broken-imgproxy-link.md']);
     }
 
+    #[TestDox('import() excludes files with a hash prefix from import')]
     public function test_it_excludes_files_with_hash_prefix_from_import(): void
     {
         Storage::fake('content');
@@ -256,6 +266,7 @@ class DocumentImportServiceTest extends TestCase
         $this->assertDatabaseMissing('documents', ['path' => '#draft.md']);
     }
 
+    #[TestDox('import() excludes a hash-prefixed file regardless of subfolder nesting')]
     public function test_it_excludes_hash_prefixed_file_regardless_of_subfolder(): void
     {
         Storage::fake('content');
@@ -288,6 +299,7 @@ class DocumentImportServiceTest extends TestCase
         $this->assertDatabaseHas('documents', ['path' => 'not#hidden.md']);
     }
 
+    #[TestDox('import() excludes all files inside a hash-prefixed folder')]
     public function test_it_excludes_all_files_inside_a_hash_prefixed_folder(): void
     {
         Storage::fake('content');
@@ -321,6 +333,7 @@ class DocumentImportServiceTest extends TestCase
         $this->assertDatabaseHas('documents', ['path' => 'tools/git.md']);
     }
 
+    #[TestDox('importAll() excludes a hash-prefixed file for one content type')]
     public function test_import_all_configured_models_excludes_hash_prefixed_file_for_one_content_type(): void
     {
         Storage::fake('content');
@@ -348,13 +361,14 @@ class DocumentImportServiceTest extends TestCase
         # about page
         EOT);
 
-        DocumentImportService::importAllConfiguredModels();
+        (new ContentImporter)->importAll();
 
         $this->assertDatabaseMissing('documents', ['path' => '#draft.md', 'type' => 'post']);
         $this->assertDatabaseHas('documents', ['path' => 'about.md', 'type' => 'page']);
-        $this->assertSame(1, Document::count());
+        $this->assertDatabaseCount(Document::TABLE, 1);
     }
 
+    #[TestDox('importAll() imports every configured content type')]
     public function test_import_all_configured_models_imports_every_content_type(): void
     {
         Storage::fake('content');
@@ -392,11 +406,11 @@ class DocumentImportServiceTest extends TestCase
         # laravel category
         EOT);
 
-        DocumentImportService::importAllConfiguredModels();
+        (new ContentImporter)->importAll();
 
         $this->assertDatabaseHas('documents', ['path' => 'hello.md', 'type' => 'post']);
         $this->assertDatabaseHas('documents', ['path' => 'about.md', 'type' => 'page']);
         $this->assertDatabaseHas('documents', ['path' => 'laravel.md', 'type' => 'category']);
-        $this->assertSame(3, Document::count());
+        $this->assertDatabaseCount(Document::TABLE, 3);
     }
 }

@@ -5,9 +5,13 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
+use Yazar\Console\Commands\BuildCommand;
 use Yazar\Markdown\Extensions\ImgproxyExtension;
 
+#[CoversClass(BuildCommand::class)]
 class BuildCommandTest extends TestCase
 {
     use RefreshDatabase;
@@ -34,6 +38,7 @@ class BuildCommandTest extends TestCase
         EOT);
     }
 
+    #[TestDox('build exports posts and categories but skips pages')]
     public function test_build_exports_posts_and_categories_but_not_pages(): void
     {
         Storage::fake('content');
@@ -69,11 +74,12 @@ class BuildCommandTest extends TestCase
 
         $this->artisan('build')->assertExitCode(0);
 
-        $this->assertTrue(Storage::disk('static_output')->exists('hello-world/index.html'));
+        $this->assertTrue(Storage::disk('static_output')->exists('blog/hello-world/index.html'));
         $this->assertTrue(Storage::disk('static_output')->exists('laravel/index.html'));
         $this->assertFalse(Storage::disk('static_output')->exists('about/index.html'));
     }
 
+    #[TestDox('build replaces imgproxy links with cached static files')]
     public function test_build_replaces_imgproxy_links_with_cached_static_files(): void
     {
         Storage::fake('content');
@@ -85,12 +91,13 @@ class BuildCommandTest extends TestCase
 
         $this->artisan('build')->assertExitCode(0);
 
-        $html = Storage::disk('static_output')->get('hello-world/index.html');
+        $html = Storage::disk('static_output')->get('blog/hello-world/index.html');
         $this->assertStringNotContainsString('imgproxy.test', $html);
         $this->assertTrue(Storage::disk('imgproxy_cache')->exists('post-cover/cover.jpg'));
         $this->assertStringContainsString('post-cover/cover.jpg', $html);
     }
 
+    #[TestDox('build does not fail when an imgproxy link cannot be downloaded')]
     public function test_build_does_not_fail_when_an_imgproxy_link_cannot_be_downloaded(): void
     {
         Storage::fake('content');
@@ -104,7 +111,7 @@ class BuildCommandTest extends TestCase
             ->assertExitCode(0)
             ->expectsOutputToContain('imgproxy-ссылок не удалось скачать');
 
-        $html = Storage::disk('static_output')->get('hello-world/index.html');
+        $html = Storage::disk('static_output')->get('blog/hello-world/index.html');
         $this->assertStringContainsString('imgproxy.test', $html);
     }
 }

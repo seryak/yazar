@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 use Yazar\Documents\DocumentImportService;
 use Yazar\Models\Category;
@@ -15,6 +17,7 @@ class DynamicContentRoutesTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[TestDox('the front page renders imported posts')]
     public function test_front_page_renders_imported_posts(): void
     {
         Post::create([
@@ -36,6 +39,7 @@ class DynamicContentRoutesTest extends TestCase
         $response->assertSee('Hello post');
     }
 
+    #[TestDox('the document slug route renders the page or post view')]
     public function test_document_slug_route_renders_page_or_post_view(): void
     {
         Page::create([
@@ -56,6 +60,7 @@ class DynamicContentRoutesTest extends TestCase
         $response->assertSee('Test page');
     }
 
+    #[TestDox('the category route renders related posts with pagination')]
     public function test_category_route_renders_related_posts_with_pagination(): void
     {
         Category::create([
@@ -107,6 +112,7 @@ class DynamicContentRoutesTest extends TestCase
         $secondPage->assertSee('Post one');
     }
 
+    #[TestDox('an unknown slug and invalid pagination page return 404')]
     public function test_unknown_slug_and_invalid_pagination_return_404(): void
     {
         $this->get('/missing')->assertStatus(404);
@@ -126,6 +132,7 @@ class DynamicContentRoutesTest extends TestCase
         $this->get('/single/2')->assertStatus(404);
     }
 
+    #[TestDox('a numeric route prioritizes front page pagination over slug')]
     public function test_numeric_route_uses_front_page_pagination_priority_over_slug(): void
     {
         Post::create([
@@ -172,6 +179,7 @@ class DynamicContentRoutesTest extends TestCase
         $response->assertDontSee('Numeric slug page');
     }
 
+    #[TestDox('content is imported automatically for the front page when storage is empty')]
     public function test_empty_storage_is_imported_automatically_for_front_page(): void
     {
         Storage::fake('content');
@@ -185,15 +193,17 @@ class DynamicContentRoutesTest extends TestCase
         # autoload
         EOT);
 
-        Document::truncate();
+        DB::table(Document::TABLE)->truncate();
 
         $response = $this->get('/');
 
         $response->assertStatus(200);
         $response->assertSee('Autoload post');
-        $this->assertSame(1, Document::where('slug', 'autoload')->count());
+        $this->assertDatabaseHas(Document::TABLE, ['slug' => 'autoload', 'type' => 'post']);
+        $this->assertDatabaseCount(Document::TABLE, 1);
     }
 
+    #[TestDox('the DocumentImportService contract stays valid in dynamic and static modes')]
     public function test_import_service_contract_stays_valid_for_dynamic_and_static_modes(): void
     {
         Storage::fake('content');
@@ -214,13 +224,14 @@ class DynamicContentRoutesTest extends TestCase
         $this->assertSame(1, $result['imported']);
         $this->assertSame([], $result['invalid_documents']);
 
-        $document = Document::where('slug', 'contract')->first();
+        $document = DB::table(Document::TABLE)->where('slug', 'contract')->first();
 
         $this->assertNotNull($document);
         $this->assertSame('contract.md', $document->path);
         $this->assertSame('page', $document->type);
     }
 
+    #[TestDox('a multi-segment slug is resolved correctly for the page route')]
     public function test_multi_segment_slug_is_resolved_for_page_route(): void
     {
         Page::create([

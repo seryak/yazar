@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use League\CommonMark\Exception\CommonMarkException;
-use Yazar\Contracts\Documentable;
 use Yazar\Markdown\Extensions\DiskUrlResolutionException;
 use Yazar\Markdown\Extensions\ImgproxyResolutionException;
 use Yazar\Markdown\MarkdownParser;
@@ -26,7 +25,7 @@ class DocumentImportService
     ];
 
     /**
-     * @param  class-string<Document&Documentable>  $modelClass
+     * @param  class-string<Document>  $modelClass
      */
     public function __construct(
         private readonly string $modelClass,
@@ -62,14 +61,6 @@ class DocumentImportService
             'imported' => $imported,
             'invalid_documents' => $invalidDocuments,
         ];
-    }
-
-    public static function importAllConfiguredModels(): void
-    {
-        foreach (config('yazar.content_types', []) as $modelClass) {
-            $service = new self($modelClass);
-            $service->import();
-        }
     }
 
     private function importFile(string $filePath): void

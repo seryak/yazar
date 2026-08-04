@@ -5,16 +5,17 @@ namespace Yazar\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Yazar\Documents\DocumentImportService;
-use Yazar\Models\Document;
+use Yazar\Documents\ContentImporter;
 
 class ImportEmptyContent
 {
+    public function __construct(
+        private readonly ContentImporter $importer,
+    ) {}
+
     public function handle(Request $request, Closure $next): Response
     {
-        if (Document::count() === 0) {
-            DocumentImportService::importAllConfiguredModels();
-        }
+        $this->importer->importIfEmpty();
 
         return $next($request);
     }

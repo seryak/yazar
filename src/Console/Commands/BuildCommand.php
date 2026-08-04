@@ -7,8 +7,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 use Yazar\Build\ImgproxyBuildResolver;
-use Yazar\Contracts\Documentable;
-use Yazar\Documents\DocumentImportService;
+use Yazar\Documents\ContentImporter;
 use Yazar\Exporters\FrontPageExporter;
 use Yazar\Models\Document;
 
@@ -18,10 +17,9 @@ class BuildCommand extends Command
 
     protected $description = 'Generate static build';
 
-    public function handle(): int
+    public function handle(ContentImporter $importer): int
     {
-        Document::truncate();
-        DocumentImportService::importAllConfiguredModels();
+        $importer->reimportAll();
 
         foreach (config('yazar.content_types', []) as $modelClass) {
             $this->exportContentType($modelClass);
@@ -48,7 +46,7 @@ class BuildCommand extends Command
     }
 
     /**
-     * @param  class-string<Document&Documentable>  $modelClass
+     * @param  class-string<Document>  $modelClass
      */
     private function exportContentType(string $modelClass): void
     {

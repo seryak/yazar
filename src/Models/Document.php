@@ -3,6 +3,7 @@
 namespace Yazar\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -10,7 +11,6 @@ use Yazar\Casts\DocumentMetaCast;
 use Yazar\Contracts\Documentable;
 use Yazar\Markdown\MarkdownParser;
 use Yazar\ValueObjects\DocumentMeta;
-use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @property string $path
@@ -21,9 +21,11 @@ use Illuminate\Database\Eloquent\Builder;
  * @property-read string $html_content
  * @property Carbon $published_at
  */
-class Document extends Model
+abstract class Document extends Model implements Documentable
 {
-    protected $table = 'documents';
+    public const TABLE = 'documents';
+
+    protected $table = self::TABLE;
 
     /**
      * The attributes that are mass assignable.
@@ -54,44 +56,27 @@ class Document extends Model
 
     protected static function booted(): void
     {
-        // Filter through the model instance (not self::/static::documentType()
-        // directly) so a query on the bare Document class — which isn't Documentable —
-        // skips the filter instead of fatal-erroring on a missing method. This lets
-        // cross-type operations like Document::count()/truncate() keep working.
+        // Every instantiable Document is Documentable (the base class is abstract),
+        // so the scope can rely on documentType() unconditionally. Cross-type work
+        // that must see every row lives in Yazar\Documents\ContentImporter.
         static::addGlobalScope('document_type', function (Builder $builder): void {
+            /** @var self $model */
             $model = $builder->getModel();
 
-            if ($model instanceof Documentable) {
-                $builder->where('type', $model::documentType());
+            $builder->where('type', $model::documentType());
+        });
+
+        static::saving(function (self $document): void {
+            $explicitType = $document->getAttributes()['type'] ?? null;
+
+            if ($explicitType !== null && $explicitType !== $document::documentType()) {
+                throw new InvalidArgumentException(
+                    "Document type '{$explicitType}' does not match ".$document::class." (expected '{$document::documentType()}')."
+                );
             }
+
+            $document->type = $document::documentType();
         });
-
-        static::creating(function (self $document): void {
-            self::validateAndNormalizeType($document);
-        });
-
-        static::updating(function (self $document): void {
-            self::validateAndNormalizeType($document);
-        });
-    }
-
-    private static function validateAndNormalizeType(self $document): void
-    {
-        if (! $document instanceof Documentable) {
-            throw new InvalidArgumentException(
-                'Cannot create or update the base Document model directly; use a concrete subclass (e.g. Post, Page, Category) instead.'
-            );
-        }
-
-        $explicitType = $document->getAttributes()['type'] ?? null;
-
-        if ($explicitType !== null && $explicitType !== $document::documentType()) {
-            throw new InvalidArgumentException(
-                "Document type '{$explicitType}' does not match ".$document::class." (expected '{$document::documentType()}')."
-            );
-        }
-
-        $document->type = $document::documentType();
     }
 
     public function getHtmlContentAttribute(): string

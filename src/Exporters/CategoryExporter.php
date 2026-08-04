@@ -3,7 +3,6 @@
 namespace Yazar\Exporters;
 
 use Illuminate\Support\Facades\Storage;
-use Yazar\Contracts\Documentable;
 use Yazar\Contracts\Exporter;
 use Yazar\Models\Category;
 use Yazar\Models\Document;
@@ -12,7 +11,7 @@ use Yazar\Support\Paginator;
 class CategoryExporter implements Exporter
 {
     /**
-     * @param  class-string<Document&Documentable>  $modelClass
+     * @param  class-string<Document>  $modelClass
      */
     public function __construct(
         private readonly string $modelClass,
