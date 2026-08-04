@@ -10,56 +10,49 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 use Yazar\Markdown\MarkdownParser;
 
-#[CoversMethod(MarkdownParser::class, '__construct')]
 #[CoversMethod(MarkdownParser::class, 'parse')]
+#[CoversMethod(MarkdownParser::class, 'toHtml')]
 class BaseTest extends TestCase
 {
-    /**
-     * {@see MarkdownParser::__construct()}
-     */
-    #[TestDox('__construct() configures MarkdownConverter with the CommonMark and FrontMatter extensions')]
-    public function test_constructor(): void
+    #[TestDox('the container builds MarkdownConverter with the CommonMark and FrontMatter extensions')]
+    public function test_converter_binding(): void
     {
-        $object = new MarkdownParser;
-        $reflectedClass = new \ReflectionClass($object);
-        $reflection = $reflectedClass->getProperty('parser');
-        $reflection->setAccessible(true);
-
-        /** @var MarkdownConverter $parser */
-        $parser = $reflection->getValue($object);
-
-        $this->assertEquals(MarkdownConverter::class, get_class($parser));
+        $parser = app(MarkdownConverter::class);
 
         $this->assertEquals(CommonMarkCoreExtension::class, get_class($parser->getEnvironment()->getExtensions()[0]));
         $this->assertEquals(FrontMatterExtension::class, get_class($parser->getEnvironment()->getExtensions()[1]));
     }
 
-    /**
-     * {@see MarkdownParser::__construct()}
-     */
-    #[TestDox('__construct() applies extensions configured in the config')]
-    public function test_constructor_applies_configured_extensions(): void
+    #[TestDox('the container applies extensions configured in the config')]
+    public function test_converter_binding_applies_configured_extensions(): void
     {
         config(['yazar.markdown.extensions' => [NullCommonMarkExtension::class]]);
 
-        $object = new MarkdownParser;
-        $reflectedClass = new \ReflectionClass($object);
-        $reflection = $reflectedClass->getProperty('parser');
-        $reflection->setAccessible(true);
-
-        /** @var MarkdownConverter $parser */
-        $parser = $reflection->getValue($object);
-        $extensions = $parser->getEnvironment()->getExtensions();
+        $extensions = app(MarkdownConverter::class)->getEnvironment()->getExtensions();
 
         $this->assertEquals(CommonMarkCoreExtension::class, get_class($extensions[0]));
         $this->assertEquals(FrontMatterExtension::class, get_class($extensions[1]));
         $this->assertEquals(NullCommonMarkExtension::class, get_class($extensions[2]));
     }
 
+    #[TestDox('the converter is shared, so the Environment is built once')]
+    public function test_converter_is_a_singleton(): void
+    {
+        $this->assertSame(app(MarkdownConverter::class), app(MarkdownConverter::class));
+    }
+
+    #[TestDox('toHtml() renders markdown without running the front matter pass')]
+    public function test_to_html(): void
+    {
+        $html = app(MarkdownParser::class)->toHtml('# testtext'.PHP_EOL.'olololo');
+
+        $this->assertEquals("<h1>testtext</h1>\n<p>olololo</p>\n", $html);
+    }
+
     /**
      * {@see MarkdownParser::parse()}
      */
-    #[TestDox('parse() parses front matter and renders markdown to HTML')]
+    #[TestDox('parse() parses front matter and extracts the raw markdown content')]
     public function test_parse(): void
     {
         $parserString = <<<'EOT'
@@ -75,7 +68,7 @@ class BaseTest extends TestCase
         olololo
         EOT;
 
-        $object = new MarkdownParser;
+        $object = app(MarkdownParser::class);
         $object->parse($parserString);
 
         $this->assertEquals('layout', $object->options['view::extends']);
@@ -85,23 +78,18 @@ class BaseTest extends TestCase
         $this->assertEquals('test description', $object->options['description']);
         $this->assertEquals('/assets/post_covers/test.png', $object->options['cover_image']);
 
-        $assertContentString = <<<EOT
-        <h1>testtext</h1>\n<p>olololo</p>\n
-        EOT;
-
         $assertMarkdownString = <<<'EOT'
         # testtext
         olololo
         EOT;
 
-        $this->assertEquals($assertContentString, $object->content);
         $this->assertEquals($assertMarkdownString, $object->markdownContent);
     }
 
     /**
      * {@see MarkdownParser::parse()}
      */
-    #[TestDox('parse() without front matter still renders content, leaving options empty')]
+    #[TestDox('parse() without front matter still extracts markdown content, leaving options empty')]
     public function test_parse_fails(): void
     {
         $parserString = <<<'EOT'
@@ -109,14 +97,9 @@ class BaseTest extends TestCase
         olololo
         EOT;
 
-        $object = new MarkdownParser;
+        $object = app(MarkdownParser::class);
         $object->parse($parserString);
 
-        $assertContentString = <<<EOT
-        <h1>testtext</h1>\n<p>olololo</p>\n
-        EOT;
-
-        $this->assertEquals($assertContentString, $object->content);
         $this->assertEquals('# testtext'.PHP_EOL.'olololo', $object->markdownContent);
         $this->assertEquals([], $object->options);
     }

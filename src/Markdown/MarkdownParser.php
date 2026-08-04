@@ -2,43 +2,22 @@
 
 namespace Yazar\Markdown;
 
-use League\CommonMark\Environment\Environment;
 use League\CommonMark\Exception\CommonMarkException;
-use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
-use League\CommonMark\Extension\FrontMatter\FrontMatterExtension;
 use League\CommonMark\Extension\FrontMatter\FrontMatterParserInterface;
 use League\CommonMark\MarkdownConverter;
 use Yazar\Markdown\Extensions\DiskUrlResolutionException;
 
 class MarkdownParser
 {
-    protected MarkdownConverter $parser;
-
-    protected FrontMatterParserInterface $frontMatterParser;
-
-    public string $content;
-
     public string $markdownContent;
 
     /** @var array<string, mixed> */
     public array $options;
 
-    public function __construct()
-    {
-        $config = [];
-        $environment = new Environment($config);
-        $frontMatterExtension = new FrontMatterExtension;
-
-        $environment->addExtension(new CommonMarkCoreExtension);
-        $environment->addExtension($frontMatterExtension);
-
-        foreach (config('yazar.markdown.extensions', []) as $extensionClass) {
-            $environment->addExtension(app($extensionClass));
-        }
-
-        $this->parser = new MarkdownConverter($environment);
-        $this->frontMatterParser = $frontMatterExtension->getFrontMatterParser();
-    }
+    public function __construct(
+        protected readonly MarkdownConverter $parser,
+        protected readonly FrontMatterParserInterface $frontMatterParser,
+    ) {}
 
     /**
      * @throws CommonMarkException|DiskUrlResolutionException
@@ -46,12 +25,15 @@ class MarkdownParser
     public function parse(string $string): void
     {
         $input = $this->frontMatterParser->parse($string);
-        $result = $this->parser->convert($input->getContent());
+        $this->parser->convert($input->getContent());
 
         $frontMatter = $input->getFrontMatter();
 
-        $this->content = $result->getContent();
         $this->markdownContent = $input->getContent();
         $this->options = is_array($frontMatter) ? $frontMatter : [];
+    }
+    public function toHtml(string $markdown): string
+    {
+        return $this->parser->convert($markdown)->getContent();
     }
 }

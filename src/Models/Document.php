@@ -4,6 +4,7 @@ namespace Yazar\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
@@ -79,12 +80,19 @@ abstract class Document extends Model implements Documentable
         });
     }
 
-    public function getHtmlContentAttribute(): string
+    /**
+     * The stored `content` column already has its front matter stripped at
+     * import time, so this only needs the markdown-to-HTML pass. Cached for the
+     * lifetime of the instance: a Blade template touching it more than once
+     * would otherwise re-render the whole document each time.
+     *
+     * @return Attribute<string, never>
+     */
+    protected function htmlContent(): Attribute
     {
-        $parser = new MarkdownParser;
-        $parser->parse($this->content ?? '');
-
-        return $parser->content;
+        return Attribute::make(
+            get: fn (): string => app(MarkdownParser::class)->toHtml($this->content ?? ''),
+        )->shouldCache();
     }
 
     public function getPathForStaticPageAttribute(): string

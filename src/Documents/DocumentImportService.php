@@ -67,7 +67,7 @@ class DocumentImportService
     {
         $content = Storage::disk(self::DISK)->get($filePath)
             ?? throw new \RuntimeException("File not readable: $filePath");
-        $parser = new MarkdownParser;
+        $parser = app(MarkdownParser::class);
         $parser->parse($content);
 
         $path = $this->stripSubfolder($filePath);
@@ -105,7 +105,7 @@ class DocumentImportService
         if ($content === null) {
             return false;
         }
-        $parser = new MarkdownParser;
+        $parser = app(MarkdownParser::class);
 
         try {
             $parser->parse($content);
