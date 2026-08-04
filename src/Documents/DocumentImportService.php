@@ -5,10 +5,12 @@ namespace Yazar\Documents;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 use League\CommonMark\Exception\CommonMarkException;
 use Yazar\Markdown\Extensions\DiskUrlResolutionException;
 use Yazar\Markdown\Extensions\ImgproxyResolutionException;
 use Yazar\Markdown\MarkdownParser;
+use Yazar\Markdown\ParsedDocument;
 use Yazar\Models\Document;
 
 class DocumentImportService
@@ -45,9 +47,8 @@ class DocumentImportService
         $invalidDocuments = [];
         $imported = 0;
         foreach ($files as $filePath) {
-            if ($this->isValidFile($filePath)) {
-                $this->importFile($filePath);
-            } else {
+            $parsed = $this->tryParse($filePath);
+            if ($parsed === null || ! $this->persist($filePath, $parsed)) {
                 $invalidDocuments[] = $this->stripSubfolder($filePath);
 
                 continue;
@@ -63,24 +64,25 @@ class DocumentImportService
         ];
     }
 
-    private function importFile(string $filePath): void
+    private function persist(string $filePath, ParsedDocument $parsed): bool
     {
-        $content = Storage::disk(self::DISK)->get($filePath)
-            ?? throw new \RuntimeException("File not readable: $filePath");
-        $parser = app(MarkdownParser::class);
-        $parser->parse($content);
-
         $path = $this->stripSubfolder($filePath);
 
-        $this->modelClass::updateOrCreate(
-            ['path' => $path, 'type' => $this->modelClass::documentType()],
-            [
-                'meta' => $parser->options,
-                'slug' => Str::replace('.md', '', $path),
-                'content' => $parser->markdownContent,
-                'published_at' => $parser->options['created_at'],
-            ]
-        );
+        try {
+            $this->modelClass::updateOrCreate(
+                ['path' => $path, 'type' => $this->modelClass::documentType()],
+                [
+                    'meta' => $parsed->options,
+                    'slug' => Str::replace('.md', '', $path),
+                    'content' => $parsed->markdownContent,
+                    'published_at' => $parsed->options['created_at'],
+                ]
+            );
+        } catch (InvalidArgumentException) {
+            return false;
+        }
+
+        return true;
     }
 
     private function stripSubfolder(string $filePath): string
@@ -99,25 +101,25 @@ class DocumentImportService
         return false;
     }
 
-    private function isValidFile(string $filePath): bool
+    private function tryParse(string $filePath): ?ParsedDocument
     {
         $content = Storage::disk(self::DISK)->get($filePath);
         if ($content === null) {
-            return false;
+            return null;
         }
         $parser = app(MarkdownParser::class);
 
         try {
             $parser->parse($content);
         } catch (CommonMarkException|DiskUrlResolutionException|ImgproxyResolutionException) {
-            return false;
+            return null;
         }
 
         if (! $this->isValidOptions($parser->options)) {
-            return false;
+            return null;
         }
 
-        return true;
+        return new ParsedDocument($parser->options, $parser->markdownContent);
     }
 
     /**

@@ -32,6 +32,7 @@ class MarkdownParser
         $this->markdownContent = $input->getContent();
         $this->options = is_array($frontMatter) ? $frontMatter : [];
     }
+
     public function toHtml(string $markdown): string
     {
         return $this->parser->convert($markdown)->getContent();

@@ -26,7 +26,7 @@ class YazarServiceProvider extends ServiceProvider
 
         $this->registerMarkdown();
     }
-    
+
     private function registerMarkdown(): void
     {
         $this->app->singleton(FrontMatterExtension::class);
