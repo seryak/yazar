@@ -6,6 +6,7 @@ use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\FrontMatter\FrontMatterExtension;
 use League\CommonMark\MarkdownConverter;
 use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 use Yazar\Markdown\MarkdownParser;
 
@@ -16,6 +17,7 @@ class BaseTest extends TestCase
     /**
      * {@see MarkdownParser::__construct()}
      */
+    #[TestDox('__construct() configures MarkdownConverter with the CommonMark and FrontMatter extensions')]
     public function test_constructor(): void
     {
         $object = new MarkdownParser;
@@ -35,6 +37,7 @@ class BaseTest extends TestCase
     /**
      * {@see MarkdownParser::__construct()}
      */
+    #[TestDox('__construct() applies extensions configured in the config')]
     public function test_constructor_applies_configured_extensions(): void
     {
         config(['yazar.markdown.extensions' => [NullCommonMarkExtension::class]]);
@@ -56,6 +59,7 @@ class BaseTest extends TestCase
     /**
      * {@see MarkdownParser::parse()}
      */
+    #[TestDox('parse() parses front matter and renders markdown to HTML')]
     public function test_parse(): void
     {
         $parserString = <<<'EOT'
@@ -97,6 +101,7 @@ class BaseTest extends TestCase
     /**
      * {@see MarkdownParser::parse()}
      */
+    #[TestDox('parse() without front matter still renders content, leaving options empty')]
     public function test_parse_fails(): void
     {
         $parserString = <<<'EOT'

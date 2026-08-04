@@ -4,15 +4,20 @@ namespace Tests\Unit\Models;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 use Yazar\Models\Category;
+use Yazar\Models\Document;
 use Yazar\Models\Page;
 use Yazar\Models\Post;
 
+#[CoversClass(Document::class)]
 class DocumentableContractTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[TestDox('creating a Post with a mismatched type throws')]
     public function test_creating_post_with_mismatched_type_throws(): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -31,6 +36,7 @@ class DocumentableContractTest extends TestCase
         ]);
     }
 
+    #[TestDox('creating a Post without an explicit type still works')]
     public function test_creating_post_without_explicit_type_still_works(): void
     {
         $post = Post::create([
@@ -48,6 +54,7 @@ class DocumentableContractTest extends TestCase
         $this->assertSame('post', $post->type);
     }
 
+    #[TestDox('creating a Category without an explicit type still works')]
     public function test_creating_category_without_explicit_type_still_works(): void
     {
         $category = Category::create([
@@ -65,6 +72,7 @@ class DocumentableContractTest extends TestCase
         $this->assertSame('category', $category->type);
     }
 
+    #[TestDox('creating a Page without an explicit type still works')]
     public function test_creating_page_without_explicit_type_still_works(): void
     {
         $page = Page::create([

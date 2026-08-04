@@ -5,9 +5,12 @@ namespace Tests\Unit\Build;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 use Yazar\Build\ImgproxyBuildResolver;
 
+#[CoversClass(ImgproxyBuildResolver::class)]
 class ImgproxyBuildResolverTest extends TestCase
 {
     private function fakeDisks(): void
@@ -27,6 +30,7 @@ class ImgproxyBuildResolverTest extends TestCase
     /**
      * {@see ImgproxyBuildResolver::resolve()}
      */
+    #[TestDox('resolve() replaces a single imgproxy link with a cached static path')]
     public function test_replaces_a_single_imgproxy_link_with_a_cached_static_path(): void
     {
         $this->fakeDisks();
@@ -50,6 +54,7 @@ class ImgproxyBuildResolverTest extends TestCase
     /**
      * {@see ImgproxyBuildResolver::presetKeyFromUrl()}
      */
+    #[TestDox('presetKeyFromUrl() falls back to the unknown segment when options do not match any configured preset')]
     public function test_falls_back_to_the_unknown_segment_when_the_options_do_not_match_any_configured_preset(): void
     {
         $this->fakeDisks();
@@ -68,6 +73,7 @@ class ImgproxyBuildResolverTest extends TestCase
     /**
      * {@see ImgproxyBuildResolver::resolveUrl()}
      */
+    #[TestDox('resolveUrl() downloads the same link only once across multiple files')]
     public function test_downloads_the_same_link_only_once_across_multiple_files(): void
     {
         $this->fakeDisks();
@@ -87,6 +93,7 @@ class ImgproxyBuildResolverTest extends TestCase
     /**
      * {@see ImgproxyBuildResolver::resolveUrl()}
      */
+    #[TestDox('resolveUrl() does not redownload a link already cached from a previous build')]
     public function test_does_not_redownload_a_link_already_cached_from_a_previous_build(): void
     {
         $this->fakeDisks();
@@ -109,6 +116,7 @@ class ImgproxyBuildResolverTest extends TestCase
     /**
      * {@see ImgproxyBuildResolver::targetPath()}
      */
+    #[TestDox('targetPath() keeps the original source filename regardless of the f: format token')]
     public function test_keeps_the_original_source_filename_regardless_of_the_f_format_token(): void
     {
         $this->fakeDisks();
@@ -127,6 +135,7 @@ class ImgproxyBuildResolverTest extends TestCase
     /**
      * {@see ImgproxyBuildResolver::resolveUrl()}
      */
+    #[TestDox('resolveUrl() leaves the link untouched when the response is not successful')]
     public function test_leaves_the_link_untouched_when_the_response_is_not_successful(): void
     {
         $this->fakeDisks();
@@ -148,6 +157,7 @@ class ImgproxyBuildResolverTest extends TestCase
     /**
      * {@see ImgproxyBuildResolver::resolveUrl()}
      */
+    #[TestDox('resolveUrl() leaves the link untouched on ConnectionException')]
     public function test_leaves_the_link_untouched_on_connection_exception(): void
     {
         $this->fakeDisks();
@@ -170,6 +180,7 @@ class ImgproxyBuildResolverTest extends TestCase
     /**
      * {@see ImgproxyBuildResolver::resolve()}
      */
+    #[TestDox('resolve() resolves links on paginated front page files without an .html extension')]
     public function test_resolves_links_on_paginated_front_page_files_without_an_html_extension(): void
     {
         $this->fakeDisks();
@@ -189,6 +200,7 @@ class ImgproxyBuildResolverTest extends TestCase
     /**
      * {@see ImgproxyBuildResolver::resolve()}
      */
+    #[TestDox('resolve() does not rewrite files without any imgproxy links')]
     public function test_does_not_rewrite_files_without_any_imgproxy_links(): void
     {
         $this->fakeDisks();
@@ -206,6 +218,7 @@ class ImgproxyBuildResolverTest extends TestCase
     /**
      * {@see ImgproxyBuildResolver::publish()}
      */
+    #[TestDox('publish() copies every build cache file onto the imgproxy_cache disk')]
     public function test_publish_copies_every_build_cache_file_onto_the_imgproxy_cache_disk(): void
     {
         $this->fakeDisks();
@@ -221,6 +234,7 @@ class ImgproxyBuildResolverTest extends TestCase
     /**
      * {@see ImgproxyBuildResolver::publish()}
      */
+    #[TestDox('publish() does not overwrite a file already present on the imgproxy_cache disk')]
     public function test_publish_does_not_overwrite_a_file_already_present_on_the_imgproxy_cache_disk(): void
     {
         $this->fakeDisks();

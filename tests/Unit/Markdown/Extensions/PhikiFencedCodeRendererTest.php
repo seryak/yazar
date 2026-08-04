@@ -4,15 +4,19 @@ namespace Tests\Unit\Markdown\Extensions;
 
 use League\CommonMark\Extension\CommonMark\Node\Block\FencedCode;
 use League\CommonMark\Renderer\ChildNodeRendererInterface;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use ReflectionMethod;
 use Tests\TestCase;
 use Yazar\Markdown\Extensions\PhikiFencedCodeRenderer;
 
+#[CoversClass(PhikiFencedCodeRenderer::class)]
 class PhikiFencedCodeRendererTest extends TestCase
 {
     /**
      * {@see PhikiFencedCodeRenderer::detectGrammar()}
      */
+    #[TestDox('detectGrammar() uses the language from the info string')]
     public function test_uses_language_from_info_string(): void
     {
         $renderer = new PhikiFencedCodeRenderer('github-light', 'shellscript');
@@ -24,6 +28,7 @@ class PhikiFencedCodeRendererTest extends TestCase
     /**
      * {@see PhikiFencedCodeRenderer::detectGrammar()}
      */
+    #[TestDox('detectGrammar() uses the default grammar when the language is missing')]
     public function test_uses_default_grammar_when_language_missing(): void
     {
         $renderer = new PhikiFencedCodeRenderer('github-light', 'shellscript');
@@ -35,6 +40,7 @@ class PhikiFencedCodeRendererTest extends TestCase
     /**
      * {@see PhikiFencedCodeRenderer::render()}
      */
+    #[TestDox('render() renders highlighted HTML')]
     public function test_renders_highlighted_html(): void
     {
         $renderer = new PhikiFencedCodeRenderer('github-light', 'shellscript');

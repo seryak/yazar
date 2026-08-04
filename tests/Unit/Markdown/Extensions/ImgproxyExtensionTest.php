@@ -7,11 +7,14 @@ use InvalidArgumentException;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\MarkdownConverter;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 use Yazar\Markdown\Extensions\DiskUrlExtension;
 use Yazar\Markdown\Extensions\ImgproxyExtension;
 use Yazar\Markdown\Extensions\ImgproxyResolutionException;
 
+#[CoversClass(ImgproxyExtension::class)]
 class ImgproxyExtensionTest extends TestCase
 {
     private const KEY_HEX = '68656c6c6f6b6579';
@@ -39,6 +42,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::resolveSource()}
      */
+    #[TestDox('resolveSource() resolves a bare URL source as is')]
     public function test_resolves_bare_url_source_as_is(): void
     {
         config([
@@ -58,6 +62,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::resolveSource()}
      */
+    #[TestDox('resolveSource() resolves a disk reference with the local driver via the storage URL')]
     public function test_resolves_disk_reference_with_local_driver_via_storage_url(): void
     {
         Storage::fake('media', ['url' => 'https://cdn.test']);
@@ -75,6 +80,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::s3Source()}
      */
+    #[TestDox('s3Source() resolves a disk reference with the s3 driver without creating a Flysystem adapter')]
     public function test_resolves_disk_reference_with_s3_driver_without_creating_a_flysystem_adapter(): void
     {
         config([
@@ -92,6 +98,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::resolveSource()}
      */
+    #[TestDox('resolveSource() strips a leading slash from the path to avoid a double slash in the s3 source')]
     public function test_strips_a_leading_slash_from_the_path_to_avoid_a_double_slash_in_the_s3_source(): void
     {
         config([
@@ -110,6 +117,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::sign()}
      */
+    #[TestDox('sign() signs the URL with the configured key and salt')]
     public function test_signs_the_url_with_the_configured_key_and_salt(): void
     {
         config([
@@ -127,6 +135,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::preset()}
      */
+    #[TestDox('preset() throws for an unknown preset')]
     public function test_throws_for_unknown_preset(): void
     {
         config([
@@ -142,6 +151,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::resolveSource()}
      */
+    #[TestDox('resolveSource() throws for an unregistered disk reference')]
     public function test_throws_for_unregistered_disk_reference(): void
     {
         config([
@@ -161,6 +171,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::sign()}
      */
+    #[TestDox('sign() throws when key or salt are not configured')]
     public function test_throws_when_key_or_salt_are_not_configured(): void
     {
         config([
@@ -177,6 +188,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::sign()}
      */
+    #[TestDox('sign() throws when key or salt are not valid hex strings')]
     public function test_throws_when_key_or_salt_are_not_valid_hex_strings(): void
     {
         config([
@@ -193,6 +205,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::resolve()}
      */
+    #[TestDox('resolve() does not resolve inside a fenced code block')]
     public function test_does_not_resolve_inside_fenced_code_block(): void
     {
         $html = $this->convert("```\nimgproxy(https://example.com/photo.jpg, 'preset')\n```");
@@ -204,6 +217,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::resolve()}
      */
+    #[TestDox('resolve() does not resolve inside inline code')]
     public function test_does_not_resolve_inside_inline_code(): void
     {
         $html = $this->convert("`imgproxy(https://example.com/photo.jpg, 'preset')`");
@@ -215,6 +229,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::resolveSource()}
      */
+    #[TestDox('resolveSource() resolves correctly when registered before DiskUrlExtension')]
     public function test_resolves_correctly_when_registered_before_disk_url_extension(): void
     {
         Storage::fake('media', ['url' => 'https://cdn.test']);
@@ -237,6 +252,7 @@ class ImgproxyExtensionTest extends TestCase
     /**
      * {@see ImgproxyExtension::url()}
      */
+    #[TestDox('url() builds the same signed link outside of markdown')]
     public function test_url_builds_the_same_signed_link_outside_of_markdown(): void
     {
         Storage::fake('media', ['url' => 'https://cdn.test']);

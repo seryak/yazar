@@ -7,10 +7,13 @@ use InvalidArgumentException;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\MarkdownConverter;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 use Yazar\Markdown\Extensions\DiskUrlExtension;
 use Yazar\Markdown\Extensions\DiskUrlResolutionException;
 
+#[CoversClass(DiskUrlExtension::class)]
 class DiskUrlExtensionTest extends TestCase
 {
     private function convert(string $markdown): string
@@ -25,6 +28,7 @@ class DiskUrlExtensionTest extends TestCase
     /**
      * {@see DiskUrlExtension::resolve()}
      */
+    #[TestDox('resolve() resolves a disk reference inside an image')]
     public function test_resolves_disk_reference_inside_image(): void
     {
         Storage::fake('media', ['url' => 'https://cdn.test']);
@@ -37,6 +41,7 @@ class DiskUrlExtensionTest extends TestCase
     /**
      * {@see DiskUrlExtension::resolve()}
      */
+    #[TestDox('resolve() resolves a disk reference inside a link')]
     public function test_resolves_disk_reference_inside_link(): void
     {
         Storage::fake('media', ['url' => 'https://cdn.test']);
@@ -49,6 +54,7 @@ class DiskUrlExtensionTest extends TestCase
     /**
      * {@see DiskUrlExtension::resolve()}
      */
+    #[TestDox('resolve() resolves a disk reference inside plain text')]
     public function test_resolves_disk_reference_inside_plain_text(): void
     {
         Storage::fake('media', ['url' => 'https://cdn.test']);
@@ -61,6 +67,7 @@ class DiskUrlExtensionTest extends TestCase
     /**
      * {@see DiskUrlExtension::resolve()}
      */
+    #[TestDox('resolve() resolves a disk reference inside raw HTML')]
     public function test_resolves_disk_reference_inside_raw_html(): void
     {
         Storage::fake('media', ['url' => 'https://cdn.test']);
@@ -73,6 +80,7 @@ class DiskUrlExtensionTest extends TestCase
     /**
      * {@see DiskUrlExtension::resolve()}
      */
+    #[TestDox('resolve() does not resolve a disk reference inside a fenced code block')]
     public function test_does_not_resolve_inside_fenced_code_block(): void
     {
         Storage::fake('media', ['url' => 'https://cdn.test']);
@@ -86,6 +94,7 @@ class DiskUrlExtensionTest extends TestCase
     /**
      * {@see DiskUrlExtension::resolve()}
      */
+    #[TestDox('resolve() does not resolve a disk reference inside inline code')]
     public function test_does_not_resolve_inside_inline_code(): void
     {
         Storage::fake('media', ['url' => 'https://cdn.test']);
@@ -99,6 +108,7 @@ class DiskUrlExtensionTest extends TestCase
     /**
      * {@see DiskUrlExtension::defaultDisk()}
      */
+    #[TestDox('defaultDisk() resolves a reference without an explicit disk using the configured default')]
     public function test_resolves_disk_reference_without_explicit_disk_using_configured_default(): void
     {
         Storage::fake('media', ['url' => 'https://cdn.test']);
@@ -112,6 +122,7 @@ class DiskUrlExtensionTest extends TestCase
     /**
      * {@see DiskUrlExtension::defaultDisk()}
      */
+    #[TestDox('defaultDisk() falls back to the filesystem default disk when nothing is configured')]
     public function test_omitting_the_disk_without_a_configured_default_falls_back_to_the_filesystem_default_disk(): void
     {
         config(['yazar.markdown.default_disk' => null]);
@@ -124,6 +135,7 @@ class DiskUrlExtensionTest extends TestCase
     /**
      * {@see DiskUrlExtension::resolve()}
      */
+    #[TestDox('resolve() propagates an exception for an unregistered disk')]
     public function test_propagates_exception_for_unregistered_disk(): void
     {
         $this->expectException(DiskUrlResolutionException::class);
@@ -134,6 +146,7 @@ class DiskUrlExtensionTest extends TestCase
     /**
      * {@see DiskUrlExtension::resolve()}
      */
+    #[TestDox('resolve() wraps the original exception as previous')]
     public function test_wraps_the_original_exception_as_previous(): void
     {
         try {
