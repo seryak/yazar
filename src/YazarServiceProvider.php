@@ -3,6 +3,8 @@
 namespace Yazar;
 
 use Illuminate\Support\ServiceProvider;
+use Yazar\Build\BuildProfiler;
+use Yazar\Build\NullBuildProfiler;
 use Yazar\Console\Commands\BuildCommand;
 use Yazar\Console\Commands\ClearImgproxyCacheCommand;
 use Yazar\Console\Commands\InstallCommand;
@@ -12,6 +14,8 @@ class YazarServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/yazar.php', 'yazar');
+
+        $this->app->bind(BuildProfiler::class, NullBuildProfiler::class);
     }
 
     public function boot(): void

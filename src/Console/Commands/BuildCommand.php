@@ -3,9 +3,11 @@
 namespace Yazar\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\Console\Command\Command as CommandAlias;
+use Yazar\Build\BuildProfiler;
 use Yazar\Build\ImgproxyBuildResolver;
 use Yazar\Documents\ContentImporter;
 use Yazar\Exporters\FrontPageExporter;
@@ -17,18 +19,32 @@ class BuildCommand extends Command
 
     protected $description = 'Generate static build';
 
-    public function handle(ContentImporter $importer): int
+    public function handle(ContentImporter $importer, BuildProfiler $profiler): int
     {
-        $importer->reimportAll();
+        $profiler->stage('import', function () use ($importer) {
+            $importer->reimportAll();
 
-        foreach (config('yazar.content_types', []) as $modelClass) {
-            $this->exportContentType($modelClass);
-        }
+            return DB::table(Document::TABLE)->count();
+        });
 
-        (new FrontPageExporter)->export();
+        $profiler->stage('export', function () {
+            foreach (config('yazar.content_types', []) as $modelClass) {
+                $this->exportContentType($modelClass);
+            }
+
+            return count(Storage::disk('static_output')->allFiles());
+        });
+
+        $profiler->stage('front_page', function () {
+            $before = count(Storage::disk('static_output')->allFiles());
+            (new FrontPageExporter)->export();
+
+            return count(Storage::disk('static_output')->allFiles()) - $before;
+        });
 
         $imgproxyResolver = new ImgproxyBuildResolver;
-        $failures = $imgproxyResolver->resolve();
+
+        $failures = $profiler->stage('imgproxy_resolve', fn () => $imgproxyResolver->resolve());
         if ($failures !== []) {
             $this->newLine();
             $this->warn(count($failures).' imgproxy-ссылок не удалось скачать при сборке:');
@@ -36,9 +52,19 @@ class BuildCommand extends Command
                 $this->line("  - {$url}: {$reason}");
             }
         }
-        $imgproxyResolver->publish();
 
-        $this->move();
+        $profiler->stage('imgproxy_publish', function () use ($imgproxyResolver) {
+            $before = count(Storage::disk('imgproxy_cache')->allFiles());
+            $imgproxyResolver->publish();
+
+            return count(Storage::disk('imgproxy_cache')->allFiles()) - $before;
+        });
+
+        $profiler->stage('move', function () {
+            $this->move();
+
+            return null;
+        });
 
         $this->info('generating html pages is finish');
 
