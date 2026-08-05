@@ -19,4 +19,11 @@ abstract class TestCase extends BaseTestCase
             [__DIR__.'/../stubs/views'],
         ));
     }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutVite();
+    }
 }

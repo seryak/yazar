@@ -1,10 +1,13 @@
 @extends('layout')
 
 @section('main')
-    <h1>Recent posts</h1>
-
     @foreach($items as $page)
-        <p><a href="{{ $page->slug }}">{{ $page->meta->title }}</a></p>
+        <div class="h5"><a href="{{ $page->slug }}">{{ $page->meta->title }}</a></div>
+        @if($page->meta->cover_image)
+            <div class="cover">
+                <img src="{{ $page->meta->cover_image }}" alt="{{ $page->meta->title }}">
+            </div>
+        @endif
     @endforeach
 
     <x-paginator :paginator="$paginator" />

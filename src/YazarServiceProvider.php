@@ -70,6 +70,10 @@ class YazarServiceProvider extends ServiceProvider
             ], 'yazar-views');
 
             $this->publishes([
+                __DIR__.'/../stubs/css/app.css' => resource_path('css/app.css'),
+            ], 'yazar-css');
+
+            $this->publishes([
                 __DIR__.'/../stubs/content' => base_path('_content'),
             ], 'yazar-content');
 

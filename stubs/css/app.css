@@ -1,0 +1,73 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    p {
+        @apply mb-6;
+        margin-bottom: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    h1, .h1 {
+        @apply text-4xl md:text-5xl font-bold leading-tight tracking-tight mt-8 mb-6;
+    }
+
+    h2, .h2 {
+        @apply text-3xl md:text-4xl font-bold leading-tight tracking-tight mt-8 mb-5;
+    }
+
+    h3, .h3 {
+        @apply text-2xl md:text-3xl font-semibold leading-snug mt-6 mb-4;
+    }
+
+    h4, .h4 {
+        @apply text-xl md:text-2xl font-semibold leading-snug mt-6 mb-3;
+    }
+
+    h5, .h5 {
+        @apply text-lg md:text-xl font-semibold leading-snug mt-4 mb-2;
+    }
+
+    h6, .h6 {
+        @apply text-base md:text-lg font-semibold leading-snug mt-4 mb-2;
+    }
+
+    code, kbd, pre, samp {
+        @apply font-mono text-sm;
+    }
+
+    code {
+        @apply text-gray-800 bg-gray-100 rounded px-1.5 py-0.5;
+    }
+
+    kbd {
+        @apply text-white bg-gray-900 rounded-sm px-1.5 py-0.5 shadow-[inset_0_-1px_0_rgba(0,0,0,0.25)];
+    }
+
+    kbd kbd {
+        @apply p-0 text-sm font-bold shadow-none;
+    }
+
+    pre {
+        @apply block mb-6 p-4 text-gray-800 bg-gray-100 border border-gray-200 rounded-lg break-all break-words;
+    }
+
+    pre code {
+        @apply p-0 text-inherit bg-transparent rounded-none whitespace-pre-wrap;
+    }
+}
+
+@layer components {
+    .pre-scrollable {
+        @apply max-h-[340px] overflow-y-auto;
+    }
+}

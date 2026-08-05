@@ -35,7 +35,6 @@ class DynamicContentRoutesTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
-        $response->assertSee('Recent posts');
         $response->assertSee('Hello post');
     }
 
@@ -174,7 +173,6 @@ class DynamicContentRoutesTest extends TestCase
         $response = $this->get('/2');
 
         $response->assertStatus(200);
-        $response->assertSee('Recent posts');
         $response->assertSee('Second post');
         $response->assertDontSee('Numeric slug page');
     }
