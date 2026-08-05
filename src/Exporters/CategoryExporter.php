@@ -19,29 +19,23 @@ class CategoryExporter implements Exporter
 
     public function export(): void
     {
-        $perPage = max((int) config('yazar.pagination_per_page', 1), 1);
-
         /** @var Category $category */
         foreach (($this->modelClass)::all() as $category) {
-            $items = $category->posts;
-            $pageCount = max((int) ceil($items->count() / $perPage), 1);
+            /** @var view-string $viewName */
+            $viewName = $category->meta->viewExtends;
 
-            for ($i = 1; $i <= $pageCount; $i++) {
-                $temporarySlug = $i === 1 ? $category->slug.'/index.html' : $category->slug.'/'.$i.'/index.html';
-                $pages = $items->forPage($i, $perPage);
+            // Ordered to match ContentController::renderCategory(); without it the
+            // static pages listed posts in whatever order the database returned.
+            $posts = $category->posts()->orderBy('published_at', 'desc')->get();
 
-                $paginator = new Paginator($pageCount, $category->slug, $i);
-                /** @var view-string $viewName */
-                $viewName = $category->meta->viewExtends;
-                $fileHtml = view($viewName,
-                    [
-                        'category' => $category,
-                        'pages' => $pages,
-                        'paginator' => $paginator,
-                    ]
-                )->render();
+            foreach (Paginator::for($posts, $category->slug)->pages() as $page) {
+                $fileHtml = view($viewName, [
+                    'category' => $category,
+                    'pages' => $page->items,
+                    'paginator' => $page,
+                ])->render();
 
-                Storage::disk('static_output')->put($temporarySlug, $fileHtml);
+                Storage::disk('static_output')->put($page->path(), $fileHtml);
             }
         }
     }

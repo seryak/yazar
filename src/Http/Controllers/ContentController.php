@@ -47,23 +47,18 @@ class ContentController extends Controller
     public function renderMainPage(int $pageNumber = 1): View
     {
         $postModel = config('yazar.content_types.posts');
-        $perPage = max((int) config('yazar.pagination_per_page', 1), 1);
-        $collection = $postModel::orderBy('published_at', 'desc')->get();
+        $paginator = Paginator::for($postModel::orderBy('published_at', 'desc')->get(), '/');
 
-        $totalItems = $collection->count();
-        $pageCount = max((int) ceil($totalItems / $perPage), 1);
-
-        if ($pageNumber < 1 || $pageNumber > $pageCount) {
+        if (! $paginator->has($pageNumber)) {
             abort(404);
         }
 
-        $items = $collection->forPage($pageNumber, $perPage);
-        $paginator = new Paginator($pageCount, '/', $pageNumber);
+        $page = $paginator->page($pageNumber);
 
         /** @var view-string $viewName */
         $viewName = config('yazar.front_page_view', 'front-page');
 
-        return view($viewName, compact('items', 'paginator'));
+        return view($viewName, ['items' => $page->items, 'paginator' => $page]);
     }
 
     private function renderDocument(Document $page): View
@@ -97,28 +92,26 @@ class ContentController extends Controller
 
     private function renderCategory(Category $category, int $pageNumber): View
     {
-        $perPage = max((int) config('yazar.pagination_per_page', 1), 1);
-        $items = $category->posts()->orderBy('published_at', 'desc')->get();
-        $totalItems = $items->count();
-        $pageCount = max((int) ceil($totalItems / $perPage), 1);
+        $paginator = Paginator::for(
+            $category->posts()->orderBy('published_at', 'desc')->get(),
+            $category->slug,
+        );
 
-        if ($pageNumber < 1 || $pageNumber > $pageCount) {
+        if (! $paginator->has($pageNumber)) {
             abort(404);
         }
 
-        $pages = $items->forPage($pageNumber, $perPage);
-        $paginator = new Paginator($pageCount, $category->slug, $pageNumber);
         $viewName = $category->meta->viewExtends;
         if (! view()->exists($viewName)) {
             abort(404);
         }
 
-        return view($viewName,
-            [
-                'category' => $category,
-                'pages' => $pages,
-                'paginator' => $paginator,
-            ]
-        );
+        $page = $paginator->page($pageNumber);
+
+        return view($viewName, [
+            'category' => $category,
+            'pages' => $page->items,
+            'paginator' => $page,
+        ]);
     }
 }
