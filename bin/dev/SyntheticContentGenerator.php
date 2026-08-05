@@ -13,9 +13,10 @@ class SyntheticContentGenerator
 {
     /**
      * Generates $count posts (the content type that drives import/export/front_page
-     * cost) spread across a fixed 5 categories. Pages are skipped entirely — they use
-     * NullExporter and never reach static_output, so they add import cost without
-     * exercising anything the profiler stages measure.
+     * cost) spread across a fixed 5 categories. Pages are skipped entirely — the
+     * benchmark focuses on the posts/categories pipeline, which dominates realistic
+     * import/export cost; adding pages would inflate import cost without exercising
+     * a materially different code path in the profiled stages.
      */
     public function generate(int $count): void
     {

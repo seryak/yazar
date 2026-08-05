@@ -3,7 +3,7 @@
 namespace Yazar\Models;
 
 use Yazar\Contracts\Exporter;
-use Yazar\Exporters\NullExporter;
+use Yazar\Exporters\PageExporter;
 
 class Page extends Document
 {
@@ -22,6 +22,6 @@ class Page extends Document
      */
     public static function exporterClass(): string
     {
-        return NullExporter::class;
+        return PageExporter::class;
     }
 }

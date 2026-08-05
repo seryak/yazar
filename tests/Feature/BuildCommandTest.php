@@ -38,8 +38,8 @@ class BuildCommandTest extends TestCase
         EOT);
     }
 
-    #[TestDox('build exports posts and categories but skips pages')]
-    public function test_build_exports_posts_and_categories_but_not_pages(): void
+    #[TestDox('build exports posts, categories and pages')]
+    public function test_build_exports_posts_categories_and_pages(): void
     {
         Storage::fake('content');
         Storage::fake('static_output');
@@ -76,7 +76,7 @@ class BuildCommandTest extends TestCase
 
         $this->assertTrue(Storage::disk('static_output')->exists('blog/hello-world/index.html'));
         $this->assertTrue(Storage::disk('static_output')->exists('laravel/index.html'));
-        $this->assertFalse(Storage::disk('static_output')->exists('about/index.html'));
+        $this->assertTrue(Storage::disk('static_output')->exists('about/index.html'));
     }
 
     #[TestDox('build replaces imgproxy links with cached static files')]

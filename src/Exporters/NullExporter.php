@@ -14,6 +14,6 @@ class NullExporter implements Exporter
      */
     public function export(): void
     {
-        // No-op: the owning model opts out of static export (e.g. Page).
+        // No-op: the owning model opts out of static export.
     }
 }
