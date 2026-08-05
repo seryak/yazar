@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Yazar\Casts\DocumentMetaCast;
 use Yazar\Contracts\Documentable;
@@ -16,6 +15,7 @@ use Yazar\ValueObjects\DocumentMeta;
 /**
  * @property string $path
  * @property string $slug
+ * @property string $url
  * @property string $content
  * @property string $type
  * @property DocumentMeta $meta
@@ -39,6 +39,7 @@ abstract class Document extends Model implements Documentable
         'content',
         'type',
         'slug',
+        'url',
         'published_at',
     ];
 
@@ -97,8 +98,6 @@ abstract class Document extends Model implements Documentable
 
     public function getPathForStaticPageAttribute(): string
     {
-        $path = Str::replace('.md', '', $this->path);
-
-        return config('yazar.use_html_suffix') ? $path.'.html' : $path.'/index.html';
+        return config('yazar.use_html_suffix') ? $this->url.'.html' : $this->url.'/index.html';
     }
 }

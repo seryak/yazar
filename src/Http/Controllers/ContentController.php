@@ -9,10 +9,10 @@ use Yazar\Support\Paginator;
 
 class ContentController extends Controller
 {
-    public function show(string $slug): View
+    public function show(string $url): View
     {
         foreach (config('yazar.content_types', []) as $modelClass) {
-            $document = $modelClass::where('slug', $slug)->first();
+            $document = $modelClass::where('url', $url)->first();
 
             if ($document === null) {
                 continue;
@@ -32,10 +32,10 @@ class ContentController extends Controller
         abort(404);
     }
 
-    public function showCategoryPage(string $slug, int $pageNumber): View
+    public function showCategoryPage(string $url, int $pageNumber): View
     {
         $categoryModel = config('yazar.content_types.categories');
-        $category = $categoryModel::where('slug', $slug)->firstOrFail();
+        $category = $categoryModel::where('url', $url)->firstOrFail();
 
         if (! $category instanceof Category) {
             abort(404);
@@ -94,7 +94,7 @@ class ContentController extends Controller
     {
         $paginator = Paginator::for(
             $category->posts()->orderBy('published_at', 'desc')->get(),
-            $category->slug,
+            $category->url,
         );
 
         if (! $paginator->has($pageNumber)) {

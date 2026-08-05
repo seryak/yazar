@@ -30,6 +30,11 @@ class Category extends Document
         return CategoryExporter::class;
     }
 
+    public static function permalink(): string
+    {
+        return '/:slug';
+    }
+
     /** @return HasMany<Post, $this> */
     public function posts(): HasMany
     {

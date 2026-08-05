@@ -25,6 +25,7 @@ class DocumentableContractTest extends TestCase
         Post::create([
             'path' => 'mismatch.md',
             'slug' => 'mismatch',
+            'url' => 'blog/mismatch',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'Mismatch',
@@ -42,6 +43,7 @@ class DocumentableContractTest extends TestCase
         $post = Post::create([
             'path' => 'hello.md',
             'slug' => 'hello',
+            'url' => 'blog/hello',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'Hello',
@@ -60,6 +62,7 @@ class DocumentableContractTest extends TestCase
         $category = Category::create([
             'path' => 'laravel.md',
             'slug' => 'laravel',
+            'url' => 'laravel',
             'meta' => [
                 'view::extends' => 'category',
                 'title' => 'Laravel',
@@ -78,6 +81,7 @@ class DocumentableContractTest extends TestCase
         $page = Page::create([
             'path' => 'about.md',
             'slug' => 'about',
+            'url' => 'about',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'About',

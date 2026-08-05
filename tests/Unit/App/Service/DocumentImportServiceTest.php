@@ -413,4 +413,92 @@ class DocumentImportServiceTest extends TestCase
         $this->assertDatabaseHas('documents', ['path' => 'laravel.md', 'type' => 'category']);
         $this->assertDatabaseCount(Document::TABLE, 3);
     }
+
+    #[TestDox('front matter slug overrides the computed slug and url')]
+    public function test_front_matter_slug_overrides_computed_slug_and_url(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('pages/original-name.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: original title
+        created_at: 2022-05-06
+        slug: custom-slug
+        ---
+        # original
+        EOT);
+
+        $service = new DocumentImportService(Page::class);
+        $result = $service->import();
+
+        $this->assertSame(1, $result['imported']);
+        $this->assertDatabaseHas('documents', [
+            'path' => 'original-name.md',
+            'slug' => 'custom-slug',
+            'url' => 'custom-slug',
+        ]);
+    }
+
+    #[TestDox('front matter url overrides the whole path, ignoring the model permalink pattern')]
+    public function test_front_matter_url_overrides_the_whole_path(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('posts/example.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: example title
+        created_at: 2022-05-06
+        url: archive/legacy
+        ---
+        # example
+        EOT);
+
+        $service = new DocumentImportService(Post::class);
+        $result = $service->import();
+
+        $this->assertSame(1, $result['imported']);
+        $this->assertDatabaseHas('documents', [
+            'path' => 'example.md',
+            'url' => 'archive/legacy',
+        ]);
+    }
+
+    #[TestDox('a document with a colliding url is skipped and reported in url_conflicts, not invalid_documents')]
+    public function test_document_with_colliding_url_is_reported_in_url_conflicts(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('pages/one.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: one title
+        created_at: 2022-05-06
+        slug: same-slug
+        ---
+        # one
+        EOT);
+
+        Storage::disk('content')->put('pages/two.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: two title
+        created_at: 2022-05-07
+        slug: same-slug
+        ---
+        # two
+        EOT);
+
+        $service = new DocumentImportService(Page::class);
+        $result = $service->import();
+
+        $this->assertSame(2, $result['total']);
+        $this->assertSame(1, $result['imported']);
+        $this->assertSame([], $result['invalid_documents']);
+        $this->assertSame(['two.md' => 'same-slug'], $result['url_conflicts']);
+
+        $this->assertDatabaseHas('documents', ['path' => 'one.md', 'url' => 'same-slug']);
+        $this->assertDatabaseMissing('documents', ['path' => 'two.md']);
+    }
 }

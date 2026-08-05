@@ -10,6 +10,8 @@ use PHPUnit\Framework\Attributes\TestDox;
 use Tests\TestCase;
 use Yazar\Console\Commands\BuildCommand;
 use Yazar\Markdown\Extensions\ImgproxyExtension;
+use Yazar\Models\Page;
+use Yazar\Models\Post;
 
 #[CoversClass(BuildCommand::class)]
 class BuildCommandTest extends TestCase
@@ -113,5 +115,44 @@ class BuildCommandTest extends TestCase
 
         $html = Storage::disk('static_output')->get('blog/hello-world/index.html');
         $this->assertStringContainsString('imgproxy.test', $html);
+    }
+
+    #[TestDox('build prints a warning for url conflicts but does not fail')]
+    public function test_build_prints_warning_for_url_conflicts_but_does_not_fail(): void
+    {
+        Storage::fake('content');
+        Storage::fake('static_output');
+
+        config(['yazar.content_types' => [
+            'posts' => Post::class,
+            'pages' => Page::class,
+        ]]);
+
+        Storage::disk('content')->put('posts/about.md', <<<'EOT'
+        ---
+        view::extends: page
+        title: About post
+        created_at: 2022-05-06
+        url: about
+        ---
+        # About post
+        EOT);
+
+        Storage::disk('content')->put('pages/about.md', <<<'EOT'
+        ---
+        view::extends: page
+        title: About page
+        created_at: 2022-05-06
+        url: about
+        ---
+        # About page
+        EOT);
+
+        $this->artisan('build')
+            ->assertExitCode(0)
+            ->expectsOutputToContain('не получили уникальный url')
+            ->expectsOutputToContain('about.md');
+
+        $this->assertTrue(Storage::disk('static_output')->exists('about/index.html'));
     }
 }

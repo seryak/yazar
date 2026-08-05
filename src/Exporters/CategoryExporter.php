@@ -28,7 +28,7 @@ class CategoryExporter implements Exporter
             // static pages listed posts in whatever order the database returned.
             $posts = $category->posts()->orderBy('published_at', 'desc')->get();
 
-            foreach (Paginator::for($posts, $category->slug)->pages() as $page) {
+            foreach (Paginator::for($posts, $category->url)->pages() as $page) {
                 $fileHtml = view($viewName, [
                     'category' => $category,
                     'pages' => $page->items,

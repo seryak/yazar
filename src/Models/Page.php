@@ -24,4 +24,9 @@ class Page extends Document
     {
         return PageExporter::class;
     }
+
+    public static function permalink(): string
+    {
+        return '/:slug';
+    }
 }

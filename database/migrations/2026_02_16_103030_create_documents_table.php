@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('path');
             $table->string('slug');
+            $table->string('url');
             $table->json('meta');
             $table->text('content');
             $table->string('type');
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->unique(['path', 'type']);
+            $table->unique('url');
         });
     }
 

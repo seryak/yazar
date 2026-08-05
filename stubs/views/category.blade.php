@@ -4,7 +4,7 @@
     <h1>{{ $category->meta->title }}</h1>
 
     @foreach($pages as $page)
-        <p><a href="{{ $page->slug }}">{{ $page->meta->title }}</a></p>
+        <p><a href="/{{ $page->url }}">{{ $page->meta->title }}</a></p>
     @endforeach
 
     <x-paginator :paginator="$paginator" />

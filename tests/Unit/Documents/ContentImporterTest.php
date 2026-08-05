@@ -10,6 +10,7 @@ use Tests\TestCase;
 use Yazar\Documents\ContentImporter;
 use Yazar\Models\Document;
 use Yazar\Models\Page;
+use Yazar\Models\Post;
 
 #[CoversClass(ContentImporter::class)]
 class ContentImporterTest extends TestCase
@@ -57,6 +58,7 @@ class ContentImporterTest extends TestCase
         Page::create([
             'path' => 'existing.md',
             'slug' => 'existing',
+            'url' => 'existing',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'Existing page',
@@ -134,5 +136,43 @@ class ContentImporterTest extends TestCase
         $this->assertDatabaseHas('documents', ['path' => 'kept.md']);
         $this->assertDatabaseHas('documents', ['path' => 'new.md']);
         $this->assertDatabaseCount(Document::TABLE, 2);
+    }
+
+    #[TestDox('a url conflict between different content types is aggregated by importAll()')]
+    public function test_url_conflict_between_content_types_is_aggregated_by_import_all(): void
+    {
+        Storage::fake('content');
+
+        config(['yazar.content_types' => [
+            'posts' => Post::class,
+            'pages' => Page::class,
+        ]]);
+
+        Storage::disk('content')->put('posts/about.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: about post
+        created_at: 2022-05-06
+        url: about
+        ---
+        # about post
+        EOT);
+
+        Storage::disk('content')->put('pages/about.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: about page
+        created_at: 2022-05-06
+        url: about
+        ---
+        # about page
+        EOT);
+
+        $conflicts = (new ContentImporter)->importAll();
+
+        $this->assertSame(['about.md' => 'about'], $conflicts);
+        $this->assertDatabaseCount(Document::TABLE, 1);
+        $this->assertDatabaseHas('documents', ['path' => 'about.md', 'type' => 'post', 'url' => 'about']);
+        $this->assertDatabaseMissing('documents', ['path' => 'about.md', 'type' => 'page']);
     }
 }

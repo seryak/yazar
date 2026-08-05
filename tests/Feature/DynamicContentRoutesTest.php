@@ -23,6 +23,7 @@ class DynamicContentRoutesTest extends TestCase
         Post::create([
             'path' => 'hello.md',
             'slug' => 'hello',
+            'url' => 'blog/hello',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'Hello post',
@@ -44,6 +45,7 @@ class DynamicContentRoutesTest extends TestCase
         Page::create([
             'path' => 'test.md',
             'slug' => 'test',
+            'url' => 'test',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'Test page',
@@ -59,12 +61,33 @@ class DynamicContentRoutesTest extends TestCase
         $response->assertSee('Test page');
     }
 
+    #[TestDox('a post resolves at its blog-prefixed url, not at the bare slug')]
+    public function test_post_resolves_at_blog_prefixed_url_not_bare_slug(): void
+    {
+        Post::create([
+            'path' => 'hello.md',
+            'slug' => 'hello',
+            'url' => 'blog/hello',
+            'meta' => [
+                'view::extends' => 'page',
+                'title' => 'Hello post',
+                'created_at' => 20220506,
+            ],
+            'content' => '# hello',
+            'published_at' => now(),
+        ]);
+
+        $this->get('/blog/hello')->assertStatus(200)->assertSee('Hello post');
+        $this->get('/hello')->assertStatus(404);
+    }
+
     #[TestDox('the category route renders related posts with pagination')]
     public function test_category_route_renders_related_posts_with_pagination(): void
     {
         Category::create([
             'path' => 'laravel.md',
             'slug' => 'laravel',
+            'url' => 'laravel',
             'meta' => [
                 'view::extends' => 'category',
                 'title' => 'Laravel',
@@ -78,6 +101,7 @@ class DynamicContentRoutesTest extends TestCase
         Post::create([
             'path' => 'post-one.md',
             'slug' => 'post-one',
+            'url' => 'blog/post-one',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'Post one',
@@ -91,6 +115,7 @@ class DynamicContentRoutesTest extends TestCase
         Post::create([
             'path' => 'post-two.md',
             'slug' => 'post-two',
+            'url' => 'blog/post-two',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'Post two',
@@ -119,6 +144,7 @@ class DynamicContentRoutesTest extends TestCase
         Category::create([
             'path' => 'single.md',
             'slug' => 'single',
+            'url' => 'single',
             'meta' => [
                 'view::extends' => 'category',
                 'title' => 'Single',
@@ -137,6 +163,7 @@ class DynamicContentRoutesTest extends TestCase
         Post::create([
             'path' => 'first.md',
             'slug' => 'first',
+            'url' => 'blog/first',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'First post',
@@ -149,6 +176,7 @@ class DynamicContentRoutesTest extends TestCase
         Post::create([
             'path' => 'second.md',
             'slug' => 'second',
+            'url' => 'blog/second',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'Second post',
@@ -161,6 +189,7 @@ class DynamicContentRoutesTest extends TestCase
         Page::create([
             'path' => 'numeric-page.md',
             'slug' => '2',
+            'url' => '2',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'Numeric slug page',
@@ -235,6 +264,7 @@ class DynamicContentRoutesTest extends TestCase
         Page::create([
             'path' => 'tools/jetbrains/test2.md',
             'slug' => 'tools/jetbrains/test2',
+            'url' => 'tools/jetbrains/test2',
             'meta' => [
                 'view::extends' => 'page',
                 'title' => 'Nested page',

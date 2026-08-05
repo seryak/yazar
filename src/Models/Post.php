@@ -25,8 +25,8 @@ class Post extends Document
         return PostExporter::class;
     }
 
-    public function getPathForStaticPageAttribute(): string
+    public static function permalink(): string
     {
-        return 'blog/'.parent::getPathForStaticPageAttribute();
+        return '/blog/:slug';
     }
 }

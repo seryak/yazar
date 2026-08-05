@@ -10,12 +10,12 @@ Route::middleware(ImportEmptyContent::class)->group(function () {
         ->whereNumber('pageNumber')
         ->name('front-page.pagination');
 
-    Route::get('/{slug}/{pageNumber}', [ContentController::class, 'showCategoryPage'])
-        ->where('slug', '.+')
+    Route::get('/{url}/{pageNumber}', [ContentController::class, 'showCategoryPage'])
+        ->where('url', '.+')
         ->whereNumber('pageNumber')
         ->name('content.category.pagination');
 
-    Route::get('/{slug}', [ContentController::class, 'show'])
-        ->where('slug', '.+')
+    Route::get('/{url}', [ContentController::class, 'show'])
+        ->where('url', '.+')
         ->name('content.show');
 });

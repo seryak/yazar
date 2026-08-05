@@ -21,11 +21,21 @@ class BuildCommand extends Command
 
     public function handle(ContentImporter $importer, BuildProfiler $profiler): int
     {
-        $profiler->stage('import', function () use ($importer) {
-            $importer->reimportAll();
+        $urlConflicts = [];
+
+        $profiler->stage('import', function () use ($importer, &$urlConflicts) {
+            $urlConflicts = $importer->reimportAll();
 
             return DB::table(Document::TABLE)->count();
         });
+
+        if ($urlConflicts !== []) {
+            $this->newLine();
+            $this->warn(count($urlConflicts).' документов не получили уникальный url при импорте:');
+            foreach ($urlConflicts as $path => $url) {
+                $this->line("  - {$path}: url '{$url}' уже занят другим документом");
+            }
+        }
 
         $profiler->stage('export', function () {
             foreach (config('yazar.content_types', []) as $modelClass) {

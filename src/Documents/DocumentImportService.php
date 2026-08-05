@@ -2,6 +2,8 @@
 
 namespace Yazar\Documents;
 
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -18,6 +20,12 @@ class DocumentImportService
     private const DISK = 'content';
 
     /**
+     * SQLite/MySQL/PostgreSQL all report a unique-constraint violation under
+     * this SQLSTATE class, which is what QueryException::getCode() surfaces.
+     */
+    private const DUPLICATE_ENTRY_SQLSTATE = '23000';
+
+    /**
      * @var list<string>
      */
     private const REQUIRED_META_FIELDS = [
@@ -27,6 +35,11 @@ class DocumentImportService
     ];
 
     /**
+     * @var array<string, string> path => url that was already taken by another document
+     */
+    private array $urlConflicts = [];
+
+    /**
      * @param  class-string<Document>  $modelClass
      */
     public function __construct(
@@ -34,7 +47,7 @@ class DocumentImportService
     ) {}
 
     /**
-     * @return array{total:int, imported:int, invalid_documents:list<string>}
+     * @return array{total:int, imported:int, invalid_documents:list<string>, url_conflicts:array<string,string>}
      */
     public function import(): array
     {
@@ -48,8 +61,12 @@ class DocumentImportService
         $imported = 0;
         foreach ($files as $filePath) {
             $parsed = $this->tryParse($filePath);
+            $path = $this->stripSubfolder($filePath);
+
             if ($parsed === null || ! $this->persist($filePath, $parsed)) {
-                $invalidDocuments[] = $this->stripSubfolder($filePath);
+                if (! array_key_exists($path, $this->urlConflicts)) {
+                    $invalidDocuments[] = $path;
+                }
 
                 continue;
             }
@@ -61,28 +78,71 @@ class DocumentImportService
             'total' => count($files),
             'imported' => $imported,
             'invalid_documents' => $invalidDocuments,
+            'url_conflicts' => $this->urlConflicts,
         ];
     }
 
     private function persist(string $filePath, ParsedDocument $parsed): bool
     {
         $path = $this->stripSubfolder($filePath);
+        $type = $this->modelClass::documentType();
+
+        $filenameSlug = Str::replace('.md', '', $path);
+        $frontMatterSlug = $this->stringOption($parsed->options, 'slug');
+        $frontMatterUrl = $this->stringOption($parsed->options, 'url');
+
+        $slug = $frontMatterSlug ?? $filenameSlug;
+        $url = $frontMatterUrl ?? PermalinkResolver::resolve($this->modelClass::permalink(), ['slug' => $slug]);
+        $url = trim($url, '/');
+
+        if ($this->urlConflictExists($url, $path, $type)) {
+            $this->urlConflicts[$path] = $url;
+
+            return false;
+        }
 
         try {
             $this->modelClass::updateOrCreate(
-                ['path' => $path, 'type' => $this->modelClass::documentType()],
+                ['path' => $path, 'type' => $type],
                 [
                     'meta' => $parsed->options,
-                    'slug' => Str::replace('.md', '', $path),
+                    'slug' => $slug,
+                    'url' => $url,
                     'content' => $parsed->markdownContent,
                     'published_at' => $parsed->options['created_at'],
                 ]
             );
         } catch (InvalidArgumentException) {
             return false;
+        } catch (QueryException $exception) {
+            if ($exception->getCode() !== self::DUPLICATE_ENTRY_SQLSTATE) {
+                throw $exception;
+            }
+
+            $this->urlConflicts[$path] = $url;
+
+            return false;
         }
 
         return true;
+    }
+
+    private function urlConflictExists(string $url, string $ownPath, string $ownType): bool
+    {
+        return DB::table(Document::TABLE)
+            ->where('url', $url)
+            ->where(fn ($query) => $query->where('path', '!=', $ownPath)->orWhere('type', '!=', $ownType))
+            ->exists();
+    }
+
+    /**
+     * @param  array<string, mixed>  $options
+     */
+    private function stringOption(array $options, string $key): ?string
+    {
+        $value = $options[$key] ?? null;
+
+        return is_string($value) && trim($value) !== '' ? $value : null;
     }
 
     private function stripSubfolder(string $filePath): string
@@ -131,6 +191,8 @@ class DocumentImportService
             'view::extends' => ['required', 'string'],
             'title' => ['required', 'string'],
             'created_at' => ['required', 'integer'],
+            'slug' => ['sometimes', 'string'],
+            'url' => ['sometimes', 'string'],
         ]);
 
         if (! $validator->passes()) {
