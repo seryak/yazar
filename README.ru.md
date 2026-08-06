@@ -77,5 +77,8 @@ php artisan build           # генерирует статический сай
 
 | Раздел | Описание |
 |-------|-------------|
+| [Шаблоны](docs/ru/templates.md) | Поля front matter и переменные Blade-шаблонов |
+| [URL](docs/ru/urls.md) | Как `url` документа вычисляется из `permalink()`, `slug` и front matter |
 | [Конфигурация](docs/ru/configuration.md) | Что означает каждая опция `config/yazar.php` |
+| [Типы контента](docs/ru/content-types.md) | Добавление нового типа документа помимо posts/pages/categories |
 | [Harness](docs/ru/harness.md) | Локальное, игнорируемое git-ом Laravel-приложение для ручного тестирования пакета |

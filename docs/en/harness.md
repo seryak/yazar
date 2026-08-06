@@ -1,4 +1,4 @@
-[← Configuration](configuration.md) · [Back to README](../../README.md)
+[← Content types](content-types.md) · [Back to README](../../README.md)
 
 # Harness: manual package testing
 

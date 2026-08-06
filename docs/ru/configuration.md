@@ -1,4 +1,4 @@
-[Назад к README](../../README.ru.md) · [Harness →](harness.md)
+[← URL](urls.md) · [Назад к README](../../README.ru.md) · [Типы контента →](content-types.md)
 
 # Конфигурация
 
@@ -29,7 +29,7 @@
 
 Плоское соответствие ключа классу Eloquent-модели, реализующей `Yazar\Contracts\Documentable`:
 
-- **Ключ** (`posts`/`pages`/`categories`) — обходится обобщённо в `DocumentImportService::importAllConfiguredModels()`, `BuildCommand` и `ContentController::show()`. Ключи `posts` и `categories` дополнительно читаются напрямую, по фиксированному имени, в трёх местах `ContentController` (`showCategoryPage()`, `renderMainPage()`, `renderDocument()` — например, `config('yazar.content_types.posts')`). Новый тип контента можно добавить под любым ключом, но переименовывать `posts`/`categories` нельзя без правки этих мест вызова.
+- **Ключ** (`posts`/`pages`/`categories`) — обходится обобщённо в `Yazar\Documents\ContentImporter::importAll()`/`reimportAll()`, `BuildCommand::exportContentType()` и `ContentController::show()`. Ключи `posts` и `categories` дополнительно читаются напрямую, по фиксированному имени, в трёх местах `ContentController` (`showCategoryPage()`, `renderMainPage()`, `renderDocument()` — например, `config('yazar.content_types.posts')`). Новый тип контента можно добавить под любым ключом, но переименовывать `posts`/`categories` нельзя без правки этих мест вызова — полный разбор см. в [Типах контента](content-types.md).
 - **Значение** — сам класс модели. Обязан реализовывать `Yazar\Contracts\Documentable`: `documentType(): string` (значение, попадающее в колонку `documents.type` — `Document` отклоняет создание/обновление записи, если оно не совпадает), `documentsPath(): string` (подпапка модели на общем диске `content`, см. `disks` ниже) и `exporterClass(): class-string<Exporter>` (логика статического экспорта, которую `php artisan build` использует для этого типа). Можно переопределить на собственный подкласс (`Post`, `Page`, `Category` или их наследник) без изменения кода пакета.
 
 ## `disks`
@@ -189,5 +189,7 @@
 
 ## Смотри также
 
+- [Типы контента](content-types.md) — реализация новой модели `Documentable`, читающей `content_types`
+- [URL](urls.md) — как `use_html_suffix` влияет на путь статической сборки
 - [Harness](harness.md) — как локально проверить конфигурацию на реальном Laravel-приложении
 - [Консольные команды](../../README.ru.md#консольные-команды) — команды `build` и `yazar:install`, которые читают эти опции

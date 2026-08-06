@@ -1,4 +1,4 @@
-[Back to README](../../README.md) · [Harness →](harness.md)
+[← Urls](urls.md) · [Back to README](../../README.md) · [Content types →](content-types.md)
 
 # Configuration
 
@@ -29,7 +29,7 @@ After `php artisan yazar:install`, all engine configuration is published to `con
 
 A flat map from a key to an Eloquent model class implementing `Yazar\Contracts\Documentable`:
 
-- **Key** (`posts`/`pages`/`categories`) — iterated generically by `DocumentImportService::importAllConfiguredModels()`, `BuildCommand`, and `ContentController::show()`. The `posts` and `categories` keys are additionally read directly, by fixed name, in three places in `ContentController` (`showCategoryPage()`, `renderMainPage()`, `renderDocument()` — e.g. `config('yazar.content_types.posts')`). A new content type can be added under any key, but renaming `posts`/`categories` requires updating those call sites.
+- **Key** (`posts`/`pages`/`categories`) — iterated generically by `Yazar\Documents\ContentImporter::importAll()`/`reimportAll()`, `BuildCommand::exportContentType()`, and `ContentController::show()`. The `posts` and `categories` keys are additionally read directly, by fixed name, in three places in `ContentController` (`showCategoryPage()`, `renderMainPage()`, `renderDocument()` — e.g. `config('yazar.content_types.posts')`). A new content type can be added under any key, but renaming `posts`/`categories` requires updating those call sites — see [Content types](content-types.md) for the full walkthrough.
 - **Value** — the model class itself. Must implement `Yazar\Contracts\Documentable`: `documentType(): string` (the value stored in the `documents.type` column — `Document` rejects creating/updating a record if it doesn't match), `documentsPath(): string` (the model's subfolder on the shared `content` disk, see `disks` below), and `exporterClass(): class-string<Exporter>` (the static-export logic `php artisan build` uses for this type). Can be overridden with your own subclass (`Post`, `Page`, `Category`, or a descendant) without touching package code.
 
 ## `disks`
@@ -189,5 +189,7 @@ No configuration is needed to enable this step beyond what `ImgproxyExtension`/t
 
 ## See also
 
+- [Content types](content-types.md) — implementing a new `Documentable` model that reads `content_types`
+- [Urls](urls.md) — how `use_html_suffix` affects the static build path
 - [Harness](harness.md) — how to test configuration locally against a real Laravel application
 - [Console commands](../../README.md#console-commands) — the `build` and `yazar:install` commands that read these options

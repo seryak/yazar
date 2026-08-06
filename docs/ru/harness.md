@@ -1,4 +1,4 @@
-[← Конфигурация](configuration.md) · [Назад к README](../../README.ru.md)
+[← Типы контента](content-types.md) · [Назад к README](../../README.ru.md)
 
 # Harness: ручная проверка пакета
 

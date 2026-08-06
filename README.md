@@ -77,5 +77,8 @@ repository for manually exercising the package — see
 
 | Guide | Description |
 |-------|-------------|
+| [Templates](docs/en/templates.md) | Front matter fields and Blade template variables |
+| [Urls](docs/en/urls.md) | How a document's `url` is resolved from `permalink()`, `slug`, and front matter |
 | [Configuration](docs/en/configuration.md) | What each `config/yazar.php` option controls |
+| [Content types](docs/en/content-types.md) | Adding a new document type beyond posts/pages/categories |
 | [Harness](docs/en/harness.md) | Local, git-ignored Laravel app for manually exercising the package |
