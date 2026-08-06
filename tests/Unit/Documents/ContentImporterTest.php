@@ -26,7 +26,7 @@ class ContentImporterTest extends TestCase
         ---
         view::extends: layout
         title: stale title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # stale
         EOT);
@@ -40,7 +40,7 @@ class ContentImporterTest extends TestCase
         ---
         view::extends: layout
         title: fresh title
-        created_at: 2022-05-07
+        created_at: "2022-05-07"
         ---
         # fresh
         EOT);
@@ -74,7 +74,7 @@ class ContentImporterTest extends TestCase
         ---
         view::extends: layout
         title: other title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # other
         EOT);
@@ -94,7 +94,7 @@ class ContentImporterTest extends TestCase
         ---
         view::extends: layout
         title: about title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # about
         EOT);
@@ -114,7 +114,7 @@ class ContentImporterTest extends TestCase
         ---
         view::extends: layout
         title: kept title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # kept
         EOT);
@@ -126,7 +126,7 @@ class ContentImporterTest extends TestCase
         ---
         view::extends: layout
         title: new title
-        created_at: 2022-05-07
+        created_at: "2022-05-07"
         ---
         # new
         EOT);
@@ -152,7 +152,7 @@ class ContentImporterTest extends TestCase
         ---
         view::extends: layout
         title: about post
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         url: about
         ---
         # about post
@@ -162,7 +162,7 @@ class ContentImporterTest extends TestCase
         ---
         view::extends: layout
         title: about page
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         url: about
         ---
         # about page

@@ -1,7 +1,7 @@
 ---
 view::extends: page
 title: About
-created_at: 20260101
+created_at: "2026-01-01"
 ---
 
 # About

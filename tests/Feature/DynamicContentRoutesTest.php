@@ -215,7 +215,7 @@ class DynamicContentRoutesTest extends TestCase
         ---
         view::extends: page
         title: Autoload post
-        created_at: 20220506
+        created_at: "2022-05-06"
         ---
         # autoload
         EOT);
@@ -239,7 +239,7 @@ class DynamicContentRoutesTest extends TestCase
         ---
         view::extends: page
         title: Contract title
-        created_at: 20220506
+        created_at: "2022-05-06"
         ---
         # contract
         EOT);

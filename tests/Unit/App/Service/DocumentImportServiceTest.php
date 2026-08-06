@@ -31,7 +31,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: valid title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # valid
         EOT);
@@ -64,7 +64,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: first title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # first
         EOT);
@@ -78,7 +78,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: second title
-        created_at: 2022-05-07
+        created_at: "2022-05-07"
         ---
         # second
         EOT);
@@ -105,7 +105,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: [layout
         title: broken
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # broken
         EOT);
@@ -127,7 +127,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: this-view-does-not-exist
         title: no view
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # no view
         EOT);
@@ -148,7 +148,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: " "
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # blank title
         EOT);
@@ -171,7 +171,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: valid title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # valid
         EOT);
@@ -180,7 +180,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: broken disk link
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         ![alt](disk(unregistered)://photos/cat.png)
         EOT);
@@ -207,7 +207,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: valid title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # valid
         EOT);
@@ -216,7 +216,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: broken imgproxy link
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         ![alt](imgproxy(https://example.com/photo.jpg, 'unknown-preset'))
         EOT);
@@ -241,7 +241,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: visible title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # visible
         EOT);
@@ -250,7 +250,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: draft title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # draft
         EOT);
@@ -275,7 +275,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: hidden title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # hidden
         EOT);
@@ -284,7 +284,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: not hidden title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # not hidden
         EOT);
@@ -308,7 +308,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: git tool
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # git
         EOT);
@@ -317,7 +317,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: visible git tool
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # git
         EOT);
@@ -347,7 +347,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: draft post
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # draft post
         EOT);
@@ -356,7 +356,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: about page
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # about page
         EOT);
@@ -383,7 +383,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: hello post
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # hello post
         EOT);
@@ -392,7 +392,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: about page
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # about page
         EOT);
@@ -401,7 +401,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: category
         title: laravel category
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # laravel category
         EOT);
@@ -414,6 +414,75 @@ class DocumentImportServiceTest extends TestCase
         $this->assertDatabaseCount(Document::TABLE, 3);
     }
 
+    #[TestDox('created_at front matter with a date-only value is parsed into the correct published_at date')]
+    public function test_created_at_front_matter_with_date_only_is_parsed_correctly(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('pages/dated.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: dated title
+        created_at: "2016-11-22"
+        ---
+        # dated
+        EOT);
+
+        $service = new DocumentImportService(Page::class);
+        $result = $service->import();
+
+        $this->assertSame(1, $result['imported']);
+
+        $document = Page::firstOrFail();
+
+        $this->assertSame('2016-11-22 00:00:00', $document->published_at?->format('Y-m-d H:i:s'));
+    }
+
+    #[TestDox('created_at front matter with a date and time value is parsed into the correct published_at moment')]
+    public function test_created_at_front_matter_with_date_and_time_is_parsed_correctly(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('pages/dated-with-time.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: dated with time title
+        created_at: "2016-11-22 14:30:00"
+        ---
+        # dated with time
+        EOT);
+
+        $service = new DocumentImportService(Page::class);
+        $result = $service->import();
+
+        $this->assertSame(1, $result['imported']);
+
+        $document = Page::firstOrFail();
+
+        $this->assertSame('2016-11-22 14:30:00', $document->published_at?->format('Y-m-d H:i:s'));
+    }
+
+    #[TestDox('created_at front matter without quotes is treated as invalid because YAML parses it as a number, not a date string')]
+    public function test_unquoted_created_at_is_treated_as_invalid(): void
+    {
+        Storage::fake('content');
+
+        Storage::disk('content')->put('pages/unquoted.md', <<<'EOT'
+        ---
+        view::extends: layout
+        title: unquoted date title
+        created_at: 2016-11-22
+        ---
+        # unquoted
+        EOT);
+
+        $service = new DocumentImportService(Page::class);
+        $result = $service->import();
+
+        $this->assertSame(0, $result['imported']);
+        $this->assertSame(['unquoted.md'], $result['invalid_documents']);
+    }
+
     #[TestDox('front matter slug overrides the computed slug and url')]
     public function test_front_matter_slug_overrides_computed_slug_and_url(): void
     {
@@ -423,7 +492,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: original title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         slug: custom-slug
         ---
         # original
@@ -449,7 +518,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: example title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         url: archive/legacy
         ---
         # example
@@ -474,7 +543,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: one title
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         slug: same-slug
         ---
         # one
@@ -484,7 +553,7 @@ class DocumentImportServiceTest extends TestCase
         ---
         view::extends: layout
         title: two title
-        created_at: 2022-05-07
+        created_at: "2022-05-07"
         slug: same-slug
         ---
         # two

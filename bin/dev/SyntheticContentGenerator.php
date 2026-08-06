@@ -37,7 +37,7 @@ class SyntheticContentGenerator
         $frontMatter = [
             "view::extends: {$viewExtends}",
             "title: {$title}",
-            'created_at: 2024-01-01',
+            'created_at: "2024-01-01"',
         ];
 
         if ($category !== null) {

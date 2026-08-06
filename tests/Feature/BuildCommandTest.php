@@ -32,7 +32,7 @@ class BuildCommandTest extends TestCase
         ---
         view::extends: page
         title: Hello World
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # Hello World
 
@@ -50,7 +50,7 @@ class BuildCommandTest extends TestCase
         ---
         view::extends: category
         title: Laravel
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # Laravel
         EOT);
@@ -59,7 +59,7 @@ class BuildCommandTest extends TestCase
         ---
         view::extends: page
         title: Hello World
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         category: laravel
         ---
         # Hello World
@@ -69,7 +69,7 @@ class BuildCommandTest extends TestCase
         ---
         view::extends: page
         title: About
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         ---
         # About
         EOT);
@@ -132,7 +132,7 @@ class BuildCommandTest extends TestCase
         ---
         view::extends: page
         title: About post
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         url: about
         ---
         # About post
@@ -142,7 +142,7 @@ class BuildCommandTest extends TestCase
         ---
         view::extends: page
         title: About page
-        created_at: 2022-05-06
+        created_at: "2022-05-06"
         url: about
         ---
         # About page

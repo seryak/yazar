@@ -2,6 +2,7 @@
 
 namespace Yazar\Documents;
 
+use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -109,7 +110,7 @@ class DocumentImportService
                     'slug' => $slug,
                     'url' => $url,
                     'content' => $parsed->markdownContent,
-                    'published_at' => $parsed->options['created_at'],
+                    'published_at' => Carbon::parse($parsed->options['created_at']),
                 ]
             );
         } catch (InvalidArgumentException) {
@@ -190,7 +191,7 @@ class DocumentImportService
         $validator = Validator::make($meta, [
             'view::extends' => ['required', 'string'],
             'title' => ['required', 'string'],
-            'created_at' => ['required', 'integer'],
+            'created_at' => ['required', 'string', 'date'],
             'slug' => ['sometimes', 'string'],
             'url' => ['sometimes', 'string'],
         ]);
